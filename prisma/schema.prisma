@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------------------------
+// ENUMS
+// --------------------------------------
+
+enum ItemCategory {
+  MOBILE
+  BIKE
+}
+
+enum ContractStatus {
+  ACTIVE
+  COMPLETED
+  DEFAULTED
+}
+
+enum PaymentType {
+  ADVANCE
+  INSTALLMENT
+}
+
+// --------------------------------------
+// USER AUTHENTICATION & SECURITY
+// --------------------------------------
+
+model User {
+  id               String   @id @default(uuid())
+  username         String   @unique
+  passwordHash     String   // Securely hashed password (e.g., bcrypt / Argon2)
+  recoveryKeyHash  String   // Hashed secret key used to reset forgotten passwords
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// --------------------------------------
+// CUSTOMER & GUARANTOR
+// --------------------------------------
+
+model Customer {
+  id         String   @id @default(uuid())
+  fullName   String
+  fatherName String
+  phone      String   @unique
+  address    String
+  cnic       String   @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  guarantors Guarantor[]
+  agreements InstallmentAgreement[]
+}
+
+model Guarantor {
+  id         String   @id @default(uuid())
+  customerId String
+  fullName   String
+  cnic       String
+  phone      String
+  createdAt  DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+// --------------------------------------
+// DEDICATED PRODUCT TABLES (BIKE & MOBILE)
+// --------------------------------------
+
+model Bike {
+  id            String   @id @default(uuid())
+  brand         String   // e.g., Honda, Zimco, Yamama
+  model         String   // e.g., CG 125, CD 70
+  color         String
+  engineNumber  String   @unique
+  chassisNumber String   @unique
+  isSold        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  agreement InstallmentAgreement?
+}
+
+model Mobile {
+  id        String   @id @default(uuid())
+  brand     String   // e.g., Samsung, Oppo, Vivo
+  model     String   // e.g., Galaxy S24, Reno 10
+  imei1     String   @unique
+  imei2     String?  @unique
+  isSold    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  agreement InstallmentAgreement?
+}
+
+// --------------------------------------
+// AGREEMENTS & PAYMENTS
+// --------------------------------------
+
+model InstallmentAgreement {
+  id          String         @id @default(uuid())
+  customerId  String
+  
+  // Explicitly track category & polymorphically link to Bike OR Mobile
+  category    ItemCategory
+  bikeId      String?        @unique
+  mobileId    String?        @unique
+
+  totalAmount Float
+  status      ContractStatus @default(ACTIVE)
+  startDate   DateTime       @default(now())
+  createdAt   DateTime       @default(now())
+
+  customer Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  bike     Bike?                @relation(fields: [bikeId], references: [id], onDelete: Restrict)
+  mobile   Mobile?              @relation(fields: [mobileId], references: [id], onDelete: Restrict)
+  payments InstallmentPayment[]
+}
+
+model InstallmentPayment {
+  id               String      @id @default(uuid())
+  agreementId      String
+  paymentType      PaymentType
+  amountPaid       Float
+  remainingBalance Float
+  paymentDate      DateTime    @default(now())
+  nextDueDate      DateTime
+  createdAt        DateTime    @default(now())
+
+  agreement InstallmentAgreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+
+  @@index([nextDueDate])
+  @@index([agreementId, paymentDate(sort: Desc)])
+}
