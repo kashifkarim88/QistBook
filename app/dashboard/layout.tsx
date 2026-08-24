@@ -25,19 +25,20 @@ export default function DashboardLayout({
     const navigation = [
         { name: "Overview & Calls", href: "/dashboard", icon: LayoutDashboard, color: "text-blue-600" },
         { name: "New Installment Sale", href: "/dashboard/new-sale", icon: PlusCircle, color: "text-emerald-600" },
-        { name: "Record Payment", href: "/dashboard/payments", icon: CreditCard, color: "text-purple-600" },
+        { name: "Payment Record", href: "/dashboard/Customers", icon: CreditCard, color: "text-purple-600" },
+        { name: "Dashboard", href: "/statistic", icon: LayoutDashboard, color: "text-blue-600" },
     ];
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row relative">
 
             {/* MOBILE TOP HEADER BAR */}
-            <div className="md:hidden bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between sticky top-0 z-30">
+            <div className="md:hidden bg-white border-b border-slate-200 px-5 py-3 flex items-center justify-between sticky top-0 z-30 print:hidden">
                 <div className="flex items-center gap-2.5">
                     <div className="p-2 bg-blue-600 text-white rounded-lg shadow-sm">
                         <Bike className="w-5 h-5" />
                     </div>
-                    <span className="font-bold text-slate-900 text-base">QistBook</span>
+                    <span className="font-bold text-slate-900 text-base">Rahim Dad Autos</span>
                 </div>
 
                 {/* TOP RIGHT HAMBURGER MENU BUTTON */}
@@ -60,7 +61,7 @@ export default function DashboardLayout({
 
             {/* SIDEBAR NAVIGATION */}
             <aside
-                className={`fixed md:static top-0 left-0 bottom-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 transform transition-transform duration-200 ease-in-out ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+                className={`fixed md:static top-0 left-0 bottom-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 transform transition-transform duration-200 ease-in-out ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0 print:hidden"
                     }`}
             >
                 <div>
@@ -71,7 +72,7 @@ export default function DashboardLayout({
                                 <Bike className="w-5 h-5" />
                             </div>
                             <div>
-                                <h1 className="font-bold text-base text-slate-900 leading-tight">QistBook</h1>
+                                <h1 className="font-bold text-base text-slate-900 leading-tight">Rahim Dad Autos</h1>
                                 <p className="text-xs text-slate-400">Installment Ledger</p>
                             </div>
                         </div>

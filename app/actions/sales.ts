@@ -1,11 +1,18 @@
+// app/actions/sales.ts
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { ItemCategory } from "@prisma/client";
+import { ItemCategory, Prisma } from "@prisma/client";
 import { redirect } from "next/navigation";
 
-export async function createSaleAction(prevState: any, formData: FormData) {
-    let isSuccess = false;
+export type ActionState = {
+    success?: boolean;
+    error?: string;
+} | null;
+
+export async function createSaleAction(prevState: ActionState, formData: FormData): Promise<ActionState> {
+    let createdAgreementId: string | null = null;
+    let monthlyInstallmentVal = 0; // 1. Variable scoped outside the try block
 
     try {
         // 1. Parse Customer Details
@@ -32,9 +39,11 @@ export async function createSaleAction(prevState: any, formData: FormData) {
         const imei1 = (formData.get("imei1") as string) || undefined;
         const imei2 = (formData.get("imei2") as string) || undefined;
 
-        // 4. Financial Calculations
+        // 4. Financial Calculations & Selected Dates
         const totalAmount = parseFloat(formData.get("totalAmount") as string);
         const advancePaid = parseFloat(formData.get("advancePaid") as string);
+        const monthlyInstallment = parseFloat(formData.get("monthlyInstallment") as string) || 0;
+        monthlyInstallmentVal = monthlyInstallment; // Capture value for redirect URL
 
         if (isNaN(totalAmount) || isNaN(advancePaid)) {
             return { error: "Please enter valid numeric amounts for total price and advance payment." };
@@ -46,23 +55,23 @@ export async function createSaleAction(prevState: any, formData: FormData) {
 
         const remainingBalance = totalAmount - advancePaid;
 
-        // Dates from form or defaults
-        const startDateStr = formData.get("createdAt") as string;
-        const nextDueDateStr = formData.get("nextDueDate") as string;
+        const createdAtInput = formData.get("createdAt") as string;
+        const nextDueDateInput = formData.get("nextDueDate") as string;
 
-        const currentDate = startDateStr ? new Date(startDateStr) : new Date();
-        const nextDueDate = nextDueDateStr ? new Date(nextDueDateStr) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        const startDate = createdAtInput ? new Date(createdAtInput) : new Date();
+        const nextDueDate = nextDueDateInput ? new Date(nextDueDateInput) : new Date(startDate.getTime() + 30 * 24 * 60 * 60 * 1000);
 
-        // 5. Execute Atomic Transaction with timeout options
+        // 5. Execute Atomic Transaction
         await prisma.$transaction(
             async (tx) => {
-                let customer = await tx.customer.findUnique({ where: { cnic } });
-                if (!customer) {
-                    customer = await tx.customer.create({
-                        data: { fullName, fatherName, phone, address, cnic },
-                    });
-                }
+                // Upsert customer
+                const customer = await tx.customer.upsert({
+                    where: { cnic },
+                    update: { fullName, fatherName, phone, address },
+                    create: { fullName, fatherName, phone, address, cnic },
+                });
 
+                // Attach guarantor record
                 await tx.guarantor.create({
                     data: {
                         customerId: customer.id,
@@ -80,7 +89,14 @@ export async function createSaleAction(prevState: any, formData: FormData) {
                         throw new Error("Engine and Chassis numbers are required for bikes.");
                     }
                     const bike = await tx.bike.create({
-                        data: { brand, model, color: color || "Standard", engineNumber, chassisNumber, isSold: true },
+                        data: {
+                            brand,
+                            model,
+                            color: color || "Standard",
+                            engineNumber,
+                            chassisNumber,
+                            isSold: true,
+                        },
                     });
                     bikeId = bike.id;
                 } else {
@@ -88,7 +104,13 @@ export async function createSaleAction(prevState: any, formData: FormData) {
                         throw new Error("IMEI-1 is required for mobile phones.");
                     }
                     const mobile = await tx.mobile.create({
-                        data: { brand, model, imei1, imei2, isSold: true },
+                        data: {
+                            brand,
+                            model,
+                            imei1,
+                            imei2,
+                            isSold: true,
+                        },
                     });
                     mobileId = mobile.id;
                 }
@@ -100,9 +122,11 @@ export async function createSaleAction(prevState: any, formData: FormData) {
                         bikeId,
                         mobileId,
                         totalAmount,
-                        startDate: currentDate,
+                        startDate,
                     },
                 });
+
+                createdAgreementId = agreement.id;
 
                 await tx.installmentPayment.create({
                     data: {
@@ -110,27 +134,39 @@ export async function createSaleAction(prevState: any, formData: FormData) {
                         paymentType: "ADVANCE",
                         amountPaid: advancePaid,
                         remainingBalance,
-                        paymentDate: currentDate,
+                        monthlyInstallment,
+                        paymentDate: startDate,
                         nextDueDate,
                     },
                 });
             },
             {
-                maxWait: 5000,  // Max time (5s) to acquire connection pool slot
-                timeout: 10000, // Max transaction duration (10s)
+                maxWait: 5000,
+                timeout: 10000,
             }
         );
-
-        isSuccess = true;
     } catch (err: any) {
         console.error("Database Submission Error:", err);
-        if (err.code === "P2002") {
-            return { error: "A record with this CNIC, Phone, IMEI, or Engine/Chassis number already exists in database." };
+
+        if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+            const target = (err.meta?.target as string[]) || [];
+
+            if (target.includes("engineNumber") || target.includes("chassisNumber")) {
+                return { error: "A bike with this Engine or Chassis number has already been registered." };
+            }
+            if (target.includes("imei1") || target.includes("imei2")) {
+                return { error: "A mobile phone with this IMEI number already exists in the system." };
+            }
+            return { error: "A record with these unique identification details already exists in the database." };
         }
+
         return { error: err.message || "Failed to save sale transaction." };
     }
 
-    if (isSuccess) {
-        redirect("/dashboard");
+    // 2. Pass monthlyInstallment in searchParams
+    if (createdAgreementId) {
+        redirect(`/dashboard/sales/${createdAgreementId}/receipt?monthlyInstallment=${monthlyInstallmentVal}`);
     }
+
+    return { success: true };
 }

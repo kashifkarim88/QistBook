@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useActionState } from "react";
+import { useState, useActionState, useEffect, useRef } from "react";
 import { createSaleAction } from "@/app/actions/sales";
 import {
     User,
@@ -10,23 +10,46 @@ import {
     Calculator,
     AlertCircle,
     ArrowLeft,
-    Calendar
+    Calendar,
+    Loader2
 } from "lucide-react";
 import Link from "next/link";
 
 export default function NewSalePage() {
     const [state, formAction, isPending] = useActionState(createSaleAction, null);
+    const formRef = useRef<HTMLFormElement>(null);
+
+    // Controlled form state to preserve data on error
+    const [formData, setFormData] = useState({
+        fullName: "",
+        fatherName: "",
+        phone: "",
+        cnic: "",
+        address: "",
+        guarantorName: "",
+        guarantorCnic: "",
+        guarantorPhone: "",
+        brand: "",
+        model: "",
+        color: "",
+        engineNumber: "",
+        chassisNumber: "",
+        imei1: "",
+        imei2: ""
+    });
+
     const [category, setCategory] = useState<"BIKE" | "MOBILE">("BIKE");
+    const [totalAmount, setTotalAmount] = useState<number | "">("");
+    const [advancePaid, setAdvancePaid] = useState<number | "">("");
+    const [monthlyInstallment, setMonthlyInstallment] = useState<number | "">("");
 
-    const [totalAmount, setTotalAmount] = useState<number>(0);
-    const [advancePaid, setAdvancePaid] = useState<number>(0);
-    const remainingDues = Math.max(0, totalAmount - advancePaid);
+    const remainingDues = Math.max(
+        0,
+        (typeof totalAmount === "number" ? totalAmount : 0) - (typeof advancePaid === "number" ? advancePaid : 0)
+    );
 
-    // Default to today's date (YYYY-MM-DD format for HTML date inputs)
+    // Default dates setup
     const todayStr = new Date().toISOString().split("T")[0];
-    const [saleDate, setSaleDate] = useState<string>(todayStr);
-
-    // Default next installment to 1 month from selected sale date
     const getDefaultNextDueDate = (baseDateStr: string) => {
         if (!baseDateStr) return "";
         const date = new Date(baseDateStr);
@@ -34,9 +57,43 @@ export default function NewSalePage() {
         return date.toISOString().split("T")[0];
     };
 
+    const [saleDate, setSaleDate] = useState<string>(todayStr);
     const [nextDueDate, setNextDueDate] = useState<string>(getDefaultNextDueDate(todayStr));
 
-    // Automatically update Next Due Date when Sale Date changes
+    // Handle clearing input fields ONLY on successful submit
+    useEffect(() => {
+        if (state?.success) {
+            setFormData({
+                fullName: "",
+                fatherName: "",
+                phone: "",
+                cnic: "",
+                address: "",
+                guarantorName: "",
+                guarantorCnic: "",
+                guarantorPhone: "",
+                brand: "",
+                model: "",
+                color: "",
+                engineNumber: "",
+                chassisNumber: "",
+                imei1: "",
+                imei2: ""
+            });
+            setTotalAmount("");
+            setAdvancePaid("");
+            setMonthlyInstallment(0);
+            setSaleDate(todayStr);
+            setNextDueDate(getDefaultNextDueDate(todayStr));
+            formRef.current?.reset();
+        }
+    }, [state?.success, todayStr]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
     const handleSaleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newDate = e.target.value;
         setSaleDate(newDate);
@@ -44,8 +101,14 @@ export default function NewSalePage() {
     };
 
     return (
-        // SINGLE FORM WRAPPER (NO OTHER <form> TAGS INSIDE)
-        <form action={formAction} className="max-w-5xl mx-auto space-y-6 pb-12">
+        <form ref={formRef} action={formAction} className="max-w-5xl mx-auto space-y-6 pb-12 relative">
+            {/* TOP PROGRESS BAR */}
+            {isPending && (
+                <div className="fixed top-0 left-0 right-0 h-1 bg-slate-100 z-50 overflow-hidden">
+                    <div className="h-full bg-emerald-600 animate-pulse w-full transform -translate-x-full animate-[shimmer_1.5s_infinite]" />
+                </div>
+            )}
+
             {/* HEADER */}
             <div className="flex items-center justify-between">
                 <div>
@@ -62,8 +125,9 @@ export default function NewSalePage() {
                 </div>
             </div>
 
+            {/* ERROR NOTIFICATION */}
             {state?.error && (
-                <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm flex items-center gap-2">
+                <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-200">
                     <AlertCircle className="w-5 h-5 shrink-0 text-rose-500" />
                     <span>{state.error}</span>
                 </div>
@@ -84,6 +148,8 @@ export default function NewSalePage() {
                         <input
                             type="text"
                             name="fullName"
+                            value={formData.fullName}
+                            onChange={handleInputChange}
                             required
                             placeholder="e.g. Muhammad Ali"
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
@@ -95,6 +161,8 @@ export default function NewSalePage() {
                         <input
                             type="text"
                             name="fatherName"
+                            value={formData.fatherName}
+                            onChange={handleInputChange}
                             required
                             placeholder="e.g. Tariq Khan"
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
@@ -106,6 +174,8 @@ export default function NewSalePage() {
                         <input
                             type="text"
                             name="phone"
+                            value={formData.phone}
+                            onChange={handleInputChange}
                             required
                             placeholder="0300-1234567"
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
@@ -117,6 +187,8 @@ export default function NewSalePage() {
                         <input
                             type="text"
                             name="cnic"
+                            value={formData.cnic}
+                            onChange={handleInputChange}
                             required
                             placeholder="17301-1234567-1"
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
@@ -128,6 +200,8 @@ export default function NewSalePage() {
                         <input
                             type="text"
                             name="address"
+                            value={formData.address}
+                            onChange={handleInputChange}
                             required
                             placeholder="House #, Street, City"
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
@@ -151,6 +225,8 @@ export default function NewSalePage() {
                         <input
                             type="text"
                             name="guarantorName"
+                            value={formData.guarantorName}
+                            onChange={handleInputChange}
                             required
                             placeholder="e.g. Asad Umar"
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
@@ -162,6 +238,8 @@ export default function NewSalePage() {
                         <input
                             type="text"
                             name="guarantorCnic"
+                            value={formData.guarantorCnic}
+                            onChange={handleInputChange}
                             required
                             placeholder="17301-9876543-2"
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
@@ -173,6 +251,8 @@ export default function NewSalePage() {
                         <input
                             type="text"
                             name="guarantorPhone"
+                            value={formData.guarantorPhone}
+                            onChange={handleInputChange}
                             required
                             placeholder="0333-7654321"
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
@@ -225,6 +305,8 @@ export default function NewSalePage() {
                             <input
                                 type="text"
                                 name="brand"
+                                value={formData.brand}
+                                onChange={handleInputChange}
                                 required
                                 placeholder="Honda, Zimco, Yamaha"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -236,6 +318,8 @@ export default function NewSalePage() {
                             <input
                                 type="text"
                                 name="model"
+                                value={formData.model}
+                                onChange={handleInputChange}
                                 required
                                 placeholder="CG 125, CD 70"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -247,6 +331,8 @@ export default function NewSalePage() {
                             <input
                                 type="text"
                                 name="color"
+                                value={formData.color}
+                                onChange={handleInputChange}
                                 placeholder="Red, Black"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                             />
@@ -257,6 +343,8 @@ export default function NewSalePage() {
                             <input
                                 type="text"
                                 name="engineNumber"
+                                value={formData.engineNumber}
+                                onChange={handleInputChange}
                                 required
                                 placeholder="ENG-99887766"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -268,6 +356,8 @@ export default function NewSalePage() {
                             <input
                                 type="text"
                                 name="chassisNumber"
+                                value={formData.chassisNumber}
+                                onChange={handleInputChange}
                                 required
                                 placeholder="CHS-11223344"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -281,6 +371,8 @@ export default function NewSalePage() {
                             <input
                                 type="text"
                                 name="brand"
+                                value={formData.brand}
+                                onChange={handleInputChange}
                                 required
                                 placeholder="Samsung, Oppo, Vivo, Apple"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -292,6 +384,8 @@ export default function NewSalePage() {
                             <input
                                 type="text"
                                 name="model"
+                                value={formData.model}
+                                onChange={handleInputChange}
                                 required
                                 placeholder="Galaxy S24, Reno 10"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -303,6 +397,8 @@ export default function NewSalePage() {
                             <input
                                 type="text"
                                 name="imei1"
+                                value={formData.imei1}
+                                onChange={handleInputChange}
                                 required
                                 placeholder="864201041234567"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
@@ -314,6 +410,8 @@ export default function NewSalePage() {
                             <input
                                 type="text"
                                 name="imei2"
+                                value={formData.imei2}
+                                onChange={handleInputChange}
                                 placeholder="864201047654321"
                                 className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                             />
@@ -322,7 +420,7 @@ export default function NewSalePage() {
                 )}
             </div>
 
-            {/* SECTION 4: FINANCIAL BREAKDOWN & SCHEDULE (LIGHT THEME) */}
+            {/* SECTION 4: FINANCIAL BREAKDOWN & SCHEDULE */}
             <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-5">
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                     <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
@@ -331,7 +429,6 @@ export default function NewSalePage() {
                     <h2 className="text-base font-bold text-slate-800">Agreement & Financial Schedule</h2>
                 </div>
 
-                {/* DATES ROW */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60">
                     <div>
                         <label className="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5">
@@ -362,8 +459,7 @@ export default function NewSalePage() {
                     </div>
                 </div>
 
-                {/* AMOUNTS ROW */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <label className="block text-xs font-semibold text-slate-600 mb-1.5">Total Agreed Price (PKR) *</label>
                         <input
@@ -372,9 +468,9 @@ export default function NewSalePage() {
                             required
                             min="0"
                             placeholder="e.g. 130000"
-                            value={totalAmount || ""}
-                            onChange={(e) => setTotalAmount(parseFloat(e.target.value) || 0)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-slate-900 text-lg font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                            value={totalAmount}
+                            onChange={(e) => setTotalAmount(e.target.value === "" ? "" : parseFloat(e.target.value))}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                         />
                     </div>
 
@@ -386,9 +482,9 @@ export default function NewSalePage() {
                             required
                             min="0"
                             placeholder="e.g. 30000"
-                            value={advancePaid || ""}
-                            onChange={(e) => setAdvancePaid(parseFloat(e.target.value) || 0)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-emerald-600 text-lg font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                            value={advancePaid}
+                            onChange={(e) => setAdvancePaid(e.target.value === "" ? "" : parseFloat(e.target.value))}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                         />
                     </div>
 
@@ -401,14 +497,21 @@ export default function NewSalePage() {
                 </div>
             </div>
 
-            {/* SUBMIT BUTTON */}
+            {/* SUBMIT BUTTON WITH SPINNER */}
             <div className="flex justify-end pt-2">
                 <button
                     type="submit"
                     disabled={isPending}
-                    className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50 cursor-pointer"
+                    className="px-8 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all disabled:opacity-50 cursor-pointer inline-flex items-center gap-2"
                 >
-                    {isPending ? "Generating Contract..." : "Complete & Save Agreement"}
+                    {isPending ? (
+                        <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            Processing Contract...
+                        </>
+                    ) : (
+                        "Complete & Save Agreement"
+                    )}
                 </button>
             </div>
         </form>
