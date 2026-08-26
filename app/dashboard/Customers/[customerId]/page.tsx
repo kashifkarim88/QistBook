@@ -124,8 +124,8 @@ export default async function CustomerDetailsPage({
             : 0;
 
     return (
-        <main className="min-h-screen bg-gray-50 p-4 sm:p-6">
-            <div className="mx-auto max-w-7xl">
+        <main className="min-h-screen overflow-x-hidden bg-gray-50 px-3 py-4 sm:px-5 sm:py-6 lg:px-6">
+            <div className="mx-auto w-full max-w-7xl">
 
                 {/* =====================================================
                     BACK BUTTON
@@ -138,6 +138,8 @@ export default async function CustomerDetailsPage({
                         inline-flex
                         items-center
                         gap-2
+                        rounded-lg
+                        py-1
                         text-sm
                         font-medium
                         text-gray-500
@@ -146,7 +148,7 @@ export default async function CustomerDetailsPage({
                     "
                 >
                     <ArrowLeft size={17} />
-                    Customers
+                    <span>Customers</span>
                 </Link>
 
                 {/* =====================================================
@@ -155,6 +157,7 @@ export default async function CustomerDetailsPage({
 
                 <section
                     className="
+                        w-full
                         overflow-hidden
                         rounded-2xl
                         border
@@ -163,56 +166,88 @@ export default async function CustomerDetailsPage({
                         shadow-sm
                     "
                 >
-                    <div className="p-5">
+                    <div className="p-4 sm:p-5 lg:p-6">
 
-                        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                        {/* Identity + Quick Stats */}
+
+                        <div
+                            className="
+                                flex
+                                flex-col
+                                gap-5
+                                lg:flex-row
+                                lg:items-center
+                                lg:justify-between
+                            "
+                        >
 
                             {/* Identity */}
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex min-w-0 items-center gap-3 sm:gap-4">
 
                                 <div
                                     className="
                                         flex
-                                        h-14
-                                        w-14
+                                        h-12
+                                        w-12
                                         shrink-0
                                         items-center
                                         justify-center
                                         rounded-full
                                         bg-blue-50
                                         text-blue-600
+                                        sm:h-14
+                                        sm:w-14
                                     "
                                 >
-                                    <User size={26} />
+                                    <User
+                                        size={24}
+                                        className="sm:hidden"
+                                    />
+
+                                    <User
+                                        size={26}
+                                        className="hidden sm:block"
+                                    />
                                 </div>
 
-                                <div>
+                                <div className="min-w-0">
                                     <div className="flex flex-wrap items-center gap-2">
 
-                                        <h1 className="text-xl font-bold text-gray-900">
+                                        <h1
+                                            className="
+                                                max-w-full
+                                                truncate
+                                                text-lg
+                                                font-bold
+                                                text-gray-900
+                                                sm:text-xl
+                                            "
+                                        >
                                             {customer.fullName}
                                         </h1>
 
                                         {activeAgreements > 0 && (
                                             <span
                                                 className="
+                                                    shrink-0
                                                     rounded-full
                                                     bg-green-50
-                                                    px-2.5
+                                                    px-2
                                                     py-1
-                                                    text-[11px]
+                                                    text-[10px]
                                                     font-medium
                                                     text-green-700
+                                                    sm:px-2.5
+                                                    sm:text-[11px]
                                                 "
                                             >
                                                 Active Customer
                                             </span>
                                         )}
-
                                     </div>
 
-                                    <p className="mt-0.5 text-sm text-gray-500">
+                                    <p className="mt-0.5 truncate text-xs text-gray-500 sm:text-sm">
                                         S/O {customer.fatherName}
                                     </p>
                                 </div>
@@ -220,9 +255,18 @@ export default async function CustomerDetailsPage({
 
                             {/* Quick Stats */}
 
-                            <div className="flex flex-wrap items-center gap-2">
-
-                                <div className="rounded-lg bg-gray-50 px-3 py-2">
+                            <div
+                                className="
+                                    grid
+                                    w-full
+                                    grid-cols-3
+                                    gap-2
+                                    sm:flex
+                                    sm:w-auto
+                                    sm:flex-wrap
+                                "
+                            >
+                                <div className="min-w-0 rounded-lg bg-gray-50 px-2.5 py-2 sm:px-3">
                                     <p className="text-[10px] text-gray-400">
                                         Items
                                     </p>
@@ -232,7 +276,7 @@ export default async function CustomerDetailsPage({
                                     </p>
                                 </div>
 
-                                <div className="rounded-lg bg-green-50 px-3 py-2">
+                                <div className="min-w-0 rounded-lg bg-green-50 px-2.5 py-2 sm:px-3">
                                     <p className="text-[10px] text-green-500">
                                         Active
                                     </p>
@@ -242,7 +286,7 @@ export default async function CustomerDetailsPage({
                                     </p>
                                 </div>
 
-                                <div className="rounded-lg bg-blue-50 px-3 py-2">
+                                <div className="min-w-0 rounded-lg bg-blue-50 px-2.5 py-2 sm:px-3">
                                     <p className="text-[10px] text-blue-500">
                                         Completed
                                     </p>
@@ -251,7 +295,6 @@ export default async function CustomerDetailsPage({
                                         {completedAgreements}
                                     </p>
                                 </div>
-
                             </div>
                         </div>
 
@@ -261,6 +304,7 @@ export default async function CustomerDetailsPage({
                             className="
                                 mt-5
                                 grid
+                                grid-cols-1
                                 gap-3
                                 border-t
                                 border-gray-100
@@ -270,46 +314,52 @@ export default async function CustomerDetailsPage({
                             "
                         >
 
-                            <div className="flex items-center gap-3">
-                                <div className="rounded-lg bg-gray-50 p-2">
+                            {/* Phone */}
+
+                            <div className="flex min-w-0 items-center gap-3">
+                                <div className="shrink-0 rounded-lg bg-gray-50 p-2">
                                     <Phone
                                         size={15}
                                         className="text-gray-500"
                                     />
                                 </div>
 
-                                <div>
+                                <div className="min-w-0">
                                     <p className="text-[10px] uppercase text-gray-400">
                                         Phone
                                     </p>
 
-                                    <p className="text-sm font-medium text-gray-700">
+                                    <p className="truncate text-sm font-medium text-gray-700">
                                         {customer.phone}
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <div className="rounded-lg bg-gray-50 p-2">
+                            {/* CNIC */}
+
+                            <div className="flex min-w-0 items-center gap-3">
+                                <div className="shrink-0 rounded-lg bg-gray-50 p-2">
                                     <CreditCard
                                         size={15}
                                         className="text-gray-500"
                                     />
                                 </div>
 
-                                <div>
+                                <div className="min-w-0">
                                     <p className="text-[10px] uppercase text-gray-400">
                                         CNIC
                                     </p>
 
-                                    <p className="text-sm font-medium text-gray-700">
+                                    <p className="truncate text-sm font-medium text-gray-700">
                                         {customer.cnic}
                                     </p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <div className="rounded-lg bg-gray-50 p-2">
+                            {/* Address */}
+
+                            <div className="flex min-w-0 items-center gap-3">
+                                <div className="shrink-0 rounded-lg bg-gray-50 p-2">
                                     <MapPin
                                         size={15}
                                         className="text-gray-500"
@@ -327,8 +377,10 @@ export default async function CustomerDetailsPage({
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <div className="rounded-lg bg-gray-50 p-2">
+                            {/* Guarantors */}
+
+                            <div className="flex min-w-0 items-center gap-3">
+                                <div className="shrink-0 rounded-lg bg-gray-50 p-2">
                                     <Users
                                         size={15}
                                         className="text-gray-500"
@@ -345,7 +397,6 @@ export default async function CustomerDetailsPage({
                                     </p>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </section>
@@ -356,8 +407,8 @@ export default async function CustomerDetailsPage({
 
                 <section className="mt-5">
 
-                    <div className="mb-3 flex items-center justify-between">
-                        <div>
+                    <div className="mb-3 flex items-end justify-between gap-3">
+                        <div className="min-w-0">
                             <h2 className="text-base font-semibold text-gray-900">
                                 Financial Overview
                             </h2>
@@ -367,7 +418,7 @@ export default async function CustomerDetailsPage({
                             </p>
                         </div>
 
-                        <span className="text-xs font-medium text-gray-500">
+                        <span className="shrink-0 text-xs font-medium text-gray-500">
                             {paymentPercentage}% Paid
                         </span>
                     </div>
@@ -375,6 +426,7 @@ export default async function CustomerDetailsPage({
                     <div
                         className="
                             grid
+                            w-full
                             overflow-hidden
                             rounded-2xl
                             border
@@ -388,9 +440,18 @@ export default async function CustomerDetailsPage({
 
                         {/* Total */}
 
-                        <div className="border-b border-gray-100 p-4 sm:border-r xl:border-b-0">
+                        <div
+                            className="
+                                min-w-0
+                                border-b
+                                border-gray-100
+                                p-4
+                                sm:border-r
+                                xl:border-b-0
+                            "
+                        >
                             <div className="flex items-center gap-2">
-                                <div className="rounded-lg bg-gray-100 p-2">
+                                <div className="shrink-0 rounded-lg bg-gray-100 p-2">
                                     <CircleDollarSign
                                         size={16}
                                         className="text-gray-600"
@@ -402,16 +463,25 @@ export default async function CustomerDetailsPage({
                                 </p>
                             </div>
 
-                            <p className="mt-3 text-lg font-bold text-gray-900">
+                            <p className="mt-3 truncate text-base font-bold text-gray-900 sm:text-lg">
                                 {formatAmount(totalAmount)}
                             </p>
                         </div>
 
                         {/* Paid */}
 
-                        <div className="border-b border-gray-100 p-4 xl:border-b-0 xl:border-r">
+                        <div
+                            className="
+                                min-w-0
+                                border-b
+                                border-gray-100
+                                p-4
+                                xl:border-b-0
+                                xl:border-r
+                            "
+                        >
                             <div className="flex items-center gap-2">
-                                <div className="rounded-lg bg-green-50 p-2">
+                                <div className="shrink-0 rounded-lg bg-green-50 p-2">
                                     <CircleDollarSign
                                         size={16}
                                         className="text-green-600"
@@ -423,16 +493,25 @@ export default async function CustomerDetailsPage({
                                 </p>
                             </div>
 
-                            <p className="mt-3 text-lg font-bold text-green-600">
+                            <p className="mt-3 truncate text-base font-bold text-green-600 sm:text-lg">
                                 {formatAmount(totalPaid)}
                             </p>
                         </div>
 
                         {/* Remaining */}
 
-                        <div className="border-b border-gray-100 p-4 sm:border-r xl:border-b-0">
+                        <div
+                            className="
+                                min-w-0
+                                border-b
+                                border-gray-100
+                                p-4
+                                sm:border-r
+                                xl:border-b-0
+                            "
+                        >
                             <div className="flex items-center gap-2">
-                                <div className="rounded-lg bg-blue-50 p-2">
+                                <div className="shrink-0 rounded-lg bg-blue-50 p-2">
                                     <CircleDollarSign
                                         size={16}
                                         className="text-blue-600"
@@ -444,41 +523,38 @@ export default async function CustomerDetailsPage({
                                 </p>
                             </div>
 
-                            <p className="mt-3 text-lg font-bold text-blue-600">
+                            <p className="mt-3 truncate text-base font-bold text-blue-600 sm:text-lg">
                                 {formatAmount(totalRemaining)}
                             </p>
                         </div>
 
                         {/* Progress */}
 
-                        <div className="p-4">
-
-                            <div className="flex items-center justify-between">
+                        <div className="min-w-0 p-4">
+                            <div className="flex items-center justify-between gap-2">
                                 <p className="text-xs text-gray-500">
                                     Payment Progress
                                 </p>
 
-                                <span className="text-xs font-semibold text-gray-700">
+                                <span className="shrink-0 text-xs font-semibold text-gray-700">
                                     {paymentPercentage}%
                                 </span>
                             </div>
 
                             <div className="mt-4 h-2 overflow-hidden rounded-full bg-gray-100">
                                 <div
-                                    className="h-full rounded-full bg-blue-600 transition-all"
+                                    className="h-full rounded-full bg-blue-600 transition-all duration-500"
                                     style={{
                                         width: `${paymentPercentage}%`,
                                     }}
                                 />
                             </div>
 
-                            <p className="mt-2 text-[11px] text-gray-400">
+                            <p className="mt-2 truncate text-[11px] text-gray-400">
                                 {formatAmount(totalPaid)} of{" "}
                                 {formatAmount(totalAmount)}
                             </p>
-
                         </div>
-
                     </div>
                 </section>
 
@@ -500,14 +576,14 @@ export default async function CustomerDetailsPage({
                         </div>
 
                         <div className="grid gap-3 sm:grid-cols-2">
-
                             {customer.guarantors.map((guarantor) => (
                                 <div
                                     key={guarantor.id}
                                     className="
                                         flex
-                                        items-center
-                                        justify-between
+                                        min-w-0
+                                        flex-col
+                                        gap-3
                                         rounded-xl
                                         border
                                         border-gray-200
@@ -515,43 +591,42 @@ export default async function CustomerDetailsPage({
                                         px-4
                                         py-3
                                         shadow-sm
+                                        sm:flex-row
+                                        sm:items-center
+                                        sm:justify-between
                                     "
                                 >
 
-                                    <div className="flex items-center gap-3">
-
-                                        <div className="rounded-full bg-gray-100 p-2.5">
+                                    <div className="flex min-w-0 items-center gap-3">
+                                        <div className="shrink-0 rounded-full bg-gray-100 p-2.5">
                                             <Users
                                                 size={17}
                                                 className="text-gray-600"
                                             />
                                         </div>
 
-                                        <div>
-                                            <p className="text-sm font-semibold text-gray-900">
+                                        <div className="min-w-0">
+                                            <p className="truncate text-sm font-semibold text-gray-900">
                                                 {guarantor.fullName}
                                             </p>
 
-                                            <p className="text-xs text-gray-500">
+                                            <p className="truncate text-xs text-gray-500">
                                                 {guarantor.phone}
                                             </p>
                                         </div>
-
                                     </div>
 
-                                    <div className="hidden text-right sm:block">
+                                    <div className="border-t border-gray-100 pt-2 text-left sm:border-0 sm:pt-0 sm:text-right">
                                         <p className="text-[10px] uppercase text-gray-400">
                                             CNIC
                                         </p>
 
-                                        <p className="text-xs text-gray-600">
+                                        <p className="truncate text-xs text-gray-600">
                                             {guarantor.cnic}
                                         </p>
                                     </div>
-
                                 </div>
                             ))}
-
                         </div>
                     </section>
                 )}
@@ -562,9 +637,8 @@ export default async function CustomerDetailsPage({
 
                 <section className="mt-6">
 
-                    <div className="mb-3 flex items-end justify-between">
-
-                        <div>
+                    <div className="mb-3 flex items-end justify-between gap-3">
+                        <div className="min-w-0">
                             <h2 className="text-base font-semibold text-gray-900">
                                 Purchased Items
                             </h2>
@@ -574,11 +648,10 @@ export default async function CustomerDetailsPage({
                             </p>
                         </div>
 
-                        <span className="text-xs text-gray-400">
+                        <span className="shrink-0 text-xs text-gray-400">
                             {totalAgreements} item
                             {totalAgreements !== 1 ? "s" : ""}
                         </span>
-
                     </div>
 
                     {customer.agreements.length === 0 ? (
@@ -589,8 +662,9 @@ export default async function CustomerDetailsPage({
                                 border-dashed
                                 border-gray-300
                                 bg-white
-                                p-10
+                                p-8
                                 text-center
+                                sm:p-10
                             "
                         >
                             <p className="text-sm font-medium text-gray-700">
@@ -598,7 +672,7 @@ export default async function CustomerDetailsPage({
                             </p>
                         </div>
                     ) : (
-                        <div className="space-y-2">
+                        <div className="space-y-3">
 
                             {customer.agreements.map((agreement) => {
 
@@ -642,19 +716,196 @@ export default async function CustomerDetailsPage({
                                         className="
                                             group
                                             block
+                                            w-full
+                                            overflow-hidden
                                             rounded-xl
                                             border
                                             border-gray-200
                                             bg-white
-                                            px-4
-                                            py-3
+                                            p-3
                                             shadow-sm
                                             transition-all
                                             hover:border-blue-200
                                             hover:shadow-md
+                                            sm:p-4
                                         "
                                     >
-                                        <div className="flex items-center gap-4">
+
+                                        {/* =================================================
+                                            MOBILE LAYOUT
+                                        ================================================= */}
+
+                                        <div className="sm:hidden">
+
+                                            {/* Header */}
+
+                                            <div className="flex min-w-0 items-center gap-3">
+
+                                                <div
+                                                    className="
+                                                        flex
+                                                        h-11
+                                                        w-11
+                                                        shrink-0
+                                                        items-center
+                                                        justify-center
+                                                        rounded-xl
+                                                        bg-blue-50
+                                                        text-blue-600
+                                                    "
+                                                >
+                                                    {agreement.category ===
+                                                        "BIKE" ? (
+                                                        <Bike size={21} />
+                                                    ) : (
+                                                        <Smartphone size={21} />
+                                                    )}
+                                                </div>
+
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex min-w-0 items-center gap-2">
+
+                                                        <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-900">
+                                                            {productName.trim() ||
+                                                                "Unnamed Item"}
+                                                        </h3>
+
+                                                        <ArrowRight
+                                                            size={16}
+                                                            className="
+                                                                shrink-0
+                                                                text-gray-400
+                                                                transition
+                                                                group-hover:translate-x-0.5
+                                                                group-hover:text-blue-600
+                                                            "
+                                                        />
+                                                    </div>
+
+                                                    <p className="mt-0.5 text-[11px] text-gray-400">
+                                                        {agreement.category}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Status */}
+
+                                            <div className="mt-3 flex items-center justify-between gap-2">
+                                                <span
+                                                    className={`
+                                                        rounded-full
+                                                        px-2
+                                                        py-1
+                                                        text-[10px]
+                                                        font-medium
+                                                        ${agreement.status ===
+                                                            "ACTIVE"
+                                                            ? "bg-green-50 text-green-700"
+                                                            : agreement.status ===
+                                                                "COMPLETED"
+                                                                ? "bg-blue-50 text-blue-700"
+                                                                : "bg-red-50 text-red-700"
+                                                        }
+                                                    `}
+                                                >
+                                                    {agreement.status}
+                                                </span>
+
+                                                <span className="text-[10px] font-medium text-gray-500">
+                                                    {percentage}% paid
+                                                </span>
+                                            </div>
+
+                                            {/* Financial Information */}
+
+                                            <div
+                                                className="
+                                                    mt-3
+                                                    grid
+                                                    grid-cols-1
+                                                    gap-2
+                                                    border-t
+                                                    border-gray-100
+                                                    pt-3
+                                                    xs:grid-cols-3
+                                                "
+                                            >
+
+                                                <div className="min-w-0">
+                                                    <p className="text-[10px] text-gray-400">
+                                                        Agreement
+                                                    </p>
+
+                                                    <p className="mt-0.5 truncate text-xs font-semibold text-gray-800">
+                                                        {formatAmount(
+                                                            agreement.totalAmount
+                                                        )}
+                                                    </p>
+                                                </div>
+
+                                                <div className="min-w-0">
+                                                    <p className="text-[10px] text-gray-400">
+                                                        Paid
+                                                    </p>
+
+                                                    <p className="mt-0.5 truncate text-xs font-semibold text-green-600">
+                                                        {formatAmount(paid)}
+                                                    </p>
+                                                </div>
+
+                                                <div className="min-w-0">
+                                                    <p className="text-[10px] text-gray-400">
+                                                        Remaining
+                                                    </p>
+
+                                                    <p className="mt-0.5 truncate text-xs font-semibold text-blue-600">
+                                                        {formatAmount(
+                                                            remaining
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Progress */}
+
+                                            <div className="mt-3">
+                                                <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                                                    <div
+                                                        className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                                                        style={{
+                                                            width: `${percentage}%`,
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Date */}
+
+                                            <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
+                                                <div className="flex items-center gap-1">
+                                                    <CalendarDays
+                                                        size={12}
+                                                        className="text-gray-400"
+                                                    />
+
+                                                    <span className="text-[10px] text-gray-400">
+                                                        Started
+                                                    </span>
+                                                </div>
+
+                                                <span className="text-xs font-medium text-gray-700">
+                                                    {formatDate(
+                                                        agreement.startDate
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* =================================================
+                                            TABLET / DESKTOP LAYOUT
+                                        ================================================= */}
+
+                                        <div className="hidden min-w-0 items-center gap-3 sm:flex lg:gap-4">
 
                                             {/* Product Icon */}
 
@@ -679,13 +930,12 @@ export default async function CustomerDetailsPage({
                                                 )}
                                             </div>
 
-                                            {/* Product Name */}
+                                            {/* Product */}
 
-                                            <div className="min-w-[180px] flex-1">
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex min-w-0 items-center gap-2">
 
-                                                <div className="flex items-center gap-2">
-
-                                                    <h3 className="truncate text-sm font-semibold text-gray-900">
+                                                    <h3 className="min-w-0 truncate text-sm font-semibold text-gray-900">
                                                         {productName.trim() ||
                                                             "Unnamed Item"}
                                                     </h3>
@@ -693,12 +943,13 @@ export default async function CustomerDetailsPage({
                                                     <span
                                                         className={`
                                                             hidden
+                                                            shrink-0
                                                             rounded-full
                                                             px-2
                                                             py-0.5
                                                             text-[10px]
                                                             font-medium
-                                                            sm:inline-flex
+                                                            md:inline-flex
                                                             ${agreement.status ===
                                                                 "ACTIVE"
                                                                 ? "bg-green-50 text-green-700"
@@ -711,64 +962,55 @@ export default async function CustomerDetailsPage({
                                                     >
                                                         {agreement.status}
                                                     </span>
-
                                                 </div>
 
                                                 <p className="mt-0.5 text-[11px] text-gray-400">
                                                     {agreement.category}
                                                 </p>
-
                                             </div>
 
-                                            {/* Amount */}
+                                            {/* Agreement */}
 
-                                            <div className="hidden min-w-[130px] md:block">
-
+                                            <div className="hidden w-28 shrink-0 md:block lg:w-32">
                                                 <p className="text-[10px] text-gray-400">
                                                     Agreement
                                                 </p>
 
-                                                <p className="mt-1 text-sm font-semibold text-gray-800">
+                                                <p className="mt-1 truncate text-sm font-semibold text-gray-800">
                                                     {formatAmount(
                                                         agreement.totalAmount
                                                     )}
                                                 </p>
-
                                             </div>
 
                                             {/* Paid */}
 
-                                            <div className="hidden min-w-[120px] lg:block">
-
+                                            <div className="hidden w-24 shrink-0 lg:block">
                                                 <p className="text-[10px] text-gray-400">
                                                     Paid
                                                 </p>
 
-                                                <p className="mt-1 text-sm font-semibold text-green-600">
+                                                <p className="mt-1 truncate text-sm font-semibold text-green-600">
                                                     {formatAmount(paid)}
                                                 </p>
-
                                             </div>
 
                                             {/* Remaining */}
 
-                                            <div className="min-w-[115px]">
-
+                                            <div className="w-24 shrink-0 sm:w-28">
                                                 <p className="text-[10px] text-gray-400">
                                                     Remaining
                                                 </p>
 
-                                                <p className="mt-1 text-sm font-semibold text-blue-600">
+                                                <p className="mt-1 truncate text-sm font-semibold text-blue-600">
                                                     {formatAmount(remaining)}
                                                 </p>
-
                                             </div>
 
                                             {/* Progress */}
 
-                                            <div className="hidden w-28 xl:block">
-
-                                                <div className="flex justify-between">
+                                            <div className="hidden w-24 shrink-0 xl:block">
+                                                <div className="flex justify-between gap-2">
                                                     <span className="text-[10px] text-gray-400">
                                                         Progress
                                                     </span>
@@ -780,19 +1022,17 @@ export default async function CustomerDetailsPage({
 
                                                 <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
                                                     <div
-                                                        className="h-full rounded-full bg-blue-600"
+                                                        className="h-full rounded-full bg-blue-600 transition-all duration-500"
                                                         style={{
                                                             width: `${percentage}%`,
                                                         }}
                                                     />
                                                 </div>
-
                                             </div>
 
-                                            {/* Start Date */}
+                                            {/* Date */}
 
-                                            <div className="hidden min-w-[95px] 2xl:block">
-
+                                            <div className="hidden w-24 shrink-0 2xl:block">
                                                 <div className="flex items-center gap-1">
                                                     <CalendarDays
                                                         size={12}
@@ -809,7 +1049,6 @@ export default async function CustomerDetailsPage({
                                                         agreement.startDate
                                                     )}
                                                 </p>
-
                                             </div>
 
                                             {/* Arrow */}
@@ -838,45 +1077,13 @@ export default async function CustomerDetailsPage({
                                                     "
                                                 />
                                             </div>
-
                                         </div>
-
-                                        {/* Mobile Progress */}
-
-                                        <div className="mt-3 border-t border-gray-100 pt-3 sm:hidden">
-
-                                            <div className="flex items-center justify-between">
-
-                                                <span className="text-[10px] text-gray-400">
-                                                    {agreement.status}
-                                                </span>
-
-                                                <span className="text-[10px] font-medium text-gray-600">
-                                                    {percentage}% paid
-                                                </span>
-
-                                            </div>
-
-                                            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-gray-100">
-                                                <div
-                                                    className="h-full rounded-full bg-blue-600"
-                                                    style={{
-                                                        width: `${percentage}%`,
-                                                    }}
-                                                />
-                                            </div>
-
-                                        </div>
-
                                     </Link>
                                 );
                             })}
-
                         </div>
                     )}
-
                 </section>
-
             </div>
         </main>
     );
