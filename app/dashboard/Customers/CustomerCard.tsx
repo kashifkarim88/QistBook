@@ -59,249 +59,344 @@ export default function CustomerCard({
         (agreement) => agreement.status === "ACTIVE"
     ).length;
 
+    const visibleProducts = customer.agreements.slice(0, 2);
+
+    const extraProducts =
+        customer.agreements.length > 2
+            ? customer.agreements.length - 2
+            : 0;
+
     return (
         <Link
             href={`/dashboard/Customers/${customer.id}`}
             className="
                 group
                 block
-                rounded-xl
+                w-full
+                min-w-0
+                overflow-hidden
+                rounded-lg
                 border
                 border-gray-200
                 bg-white
-                px-4
-                py-3
+                px-3
+                py-2.5
                 shadow-sm
-                transition-all
-                duration-200
-                hover:-translate-y-0.5
+                transition
                 hover:border-blue-200
                 hover:shadow-md
+                sm:px-3.5
+                sm:py-3
             "
         >
-            <div className="flex items-center gap-4">
+            {/* =====================================================
+                TOP ROW
+            ===================================================== */}
 
-                {/* ================= CUSTOMER ================= */}
-                <div className="flex min-w-[220px] items-center gap-3">
+            <div className="flex min-w-0 items-center gap-2.5">
 
-                    <div
+                {/* Avatar */}
+
+                <div
+                    className="
+                        flex
+                        h-9
+                        w-9
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-blue-50
+                        text-blue-600
+                    "
+                >
+                    <User size={16} />
+                </div>
+
+                {/* Customer */}
+
+                <div className="min-w-0 flex-1">
+
+                    <div className="flex min-w-0 items-center gap-1.5">
+
+                        <h2
+                            className="
+                                min-w-0
+                                truncate
+                                text-sm
+                                font-semibold
+                                text-gray-900
+                            "
+                        >
+                            {customer.fullName}
+                        </h2>
+
+                        {activeAgreements > 0 && (
+                            <span
+                                className="
+                                    hidden
+                                    shrink-0
+                                    rounded-full
+                                    bg-green-50
+                                    px-1.5
+                                    py-0.5
+                                    text-[9px]
+                                    font-medium
+                                    text-green-700
+                                    sm:inline-flex
+                                "
+                            >
+                                Active
+                            </span>
+                        )}
+                    </div>
+
+                    <p className="truncate text-[10px] text-gray-400">
+                        S/O {customer.fatherName}
+                    </p>
+                </div>
+
+                {/* Arrow */}
+
+                <ArrowRight
+                    size={16}
+                    className="
+                        shrink-0
+                        text-gray-300
+                        transition
+                        group-hover:translate-x-0.5
+                        group-hover:text-blue-500
+                    "
+                />
+            </div>
+
+            {/* =====================================================
+                DETAILS
+            ===================================================== */}
+
+            <div
+                className="
+                    mt-2.5
+                    grid
+                    grid-cols-2
+                    gap-1.5
+                    sm:grid-cols-4
+                "
+            >
+                {/* Phone */}
+
+                <div
+                    className="
+                        flex
+                        min-w-0
+                        items-center
+                        gap-1.5
+                        rounded-md
+                        bg-gray-50
+                        px-2
+                        py-1.5
+                    "
+                >
+                    <Phone
+                        size={12}
+                        className="shrink-0 text-gray-400"
+                    />
+
+                    <span
                         className="
-                            flex
-                            h-10
-                            w-10
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-full
-                            bg-blue-50
-                            text-blue-600
+                            min-w-0
+                            truncate
+                            text-[10px]
+                            text-gray-600
                         "
                     >
-                        <User size={19} />
-                    </div>
-
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                            <h2 className="truncate text-sm font-semibold text-gray-900">
-                                {customer.fullName}
-                            </h2>
-
-                            {activeAgreements > 0 && (
-                                <span
-                                    className="
-                                        rounded-full
-                                        bg-green-50
-                                        px-2
-                                        py-0.5
-                                        text-[10px]
-                                        font-medium
-                                        text-green-700
-                                    "
-                                >
-                                    Active
-                                </span>
-                            )}
-                        </div>
-
-                        <p className="mt-0.5 truncate text-xs text-gray-500">
-                            S/O {customer.fatherName}
-                        </p>
-                    </div>
+                        {customer.phone}
+                    </span>
                 </div>
 
-                {/* ================= CONTACT ================= */}
-                <div className="hidden min-w-[190px] flex-1 items-center gap-4 lg:flex">
+                {/* Agreements */}
 
-                    <div className="flex items-center gap-2">
-                        <Phone
-                            size={15}
-                            className="shrink-0 text-gray-400"
-                        />
+                <div
+                    className="
+                        min-w-0
+                        rounded-md
+                        bg-gray-50
+                        px-2
+                        py-1.5
+                    "
+                >
+                    <span className="text-[9px] text-gray-400">
+                        Agreements
+                    </span>
 
-                        <span className="text-xs text-gray-600">
-                            {customer.phone}
-                        </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <CreditCard
-                            size={15}
-                            className="shrink-0 text-gray-400"
-                        />
-
-                        <span className="text-xs text-gray-600">
-                            {customer.cnic}
-                        </span>
-                    </div>
-
+                    <span className="ml-1 text-[11px] font-semibold text-gray-700">
+                        {totalAgreements}
+                    </span>
                 </div>
 
-                {/* ================= AGREEMENTS ================= */}
-                <div className="hidden items-center gap-2 md:flex">
+                {/* Total */}
 
-                    <div className="rounded-lg bg-gray-50 px-3 py-2">
-                        <p className="text-[10px] text-gray-400">
-                            Agreements
-                        </p>
+                <div
+                    className="
+                        min-w-0
+                        rounded-md
+                        bg-gray-50
+                        px-2
+                        py-1.5
+                    "
+                >
+                    <span className="text-[9px] text-gray-400">
+                        Total
+                    </span>
 
-                        <p className="text-sm font-semibold text-gray-800">
-                            {totalAgreements}
-                        </p>
-                    </div>
-
-                    <div className="rounded-lg bg-gray-50 px-3 py-2">
-                        <p className="text-[10px] text-gray-400">
-                            Total
-                        </p>
-
-                        <p className="text-sm font-semibold text-gray-800">
-                            Rs. {totalAmount.toLocaleString()}
-                        </p>
-                    </div>
-
-                    <div className="rounded-lg bg-blue-50 px-3 py-2">
-                        <p className="text-[10px] text-blue-500">
-                            Remaining
-                        </p>
-
-                        <p className="text-sm font-semibold text-blue-700">
-                            Rs. {remainingBalance.toLocaleString()}
-                        </p>
-                    </div>
-
+                    <span className="ml-1 truncate text-[11px] font-semibold text-gray-700">
+                        Rs. {totalAmount.toLocaleString()}
+                    </span>
                 </div>
 
-                {/* ================= PRODUCTS ================= */}
-                <div className="hidden items-center gap-1.5 xl:flex">
+                {/* Remaining */}
 
-                    {customer.agreements.slice(0, 3).map((agreement) => (
+                <div
+                    className="
+                        min-w-0
+                        rounded-md
+                        bg-blue-50
+                        px-2
+                        py-1.5
+                    "
+                >
+                    <span className="text-[9px] text-blue-400">
+                        Remaining
+                    </span>
+
+                    <span className="ml-1 truncate text-[11px] font-semibold text-blue-700">
+                        Rs. {remainingBalance.toLocaleString()}
+                    </span>
+                </div>
+            </div>
+
+            {/* =====================================================
+                BOTTOM ROW
+            ===================================================== */}
+
+            <div
+                className="
+                    mt-2
+                    flex
+                    min-w-0
+                    items-center
+                    justify-between
+                    gap-2
+                    border-t
+                    border-gray-100
+                    pt-2
+                "
+            >
+                {/* Products */}
+
+                <div className="flex min-w-0 flex-1 items-center gap-1">
+
+                    {visibleProducts.map((agreement) => (
                         <span
                             key={agreement.id}
                             className="
                                 inline-flex
+                                max-w-[110px]
                                 items-center
                                 gap-1
-                                rounded-md
-                                border
-                                border-gray-200
+                                rounded
                                 bg-gray-50
-                                px-2
+                                px-1.5
                                 py-1
-                                text-[10px]
+                                text-[9px]
                                 font-medium
-                                text-gray-600
+                                text-gray-500
                             "
                         >
                             {agreement.category === "BIKE" ? (
-                                <Bike size={12} />
+                                <Bike
+                                    size={10}
+                                    className="shrink-0"
+                                />
                             ) : (
-                                <Smartphone size={12} />
+                                <Smartphone
+                                    size={10}
+                                    className="shrink-0"
+                                />
                             )}
 
-                            {agreement.category}
+                            <span className="truncate">
+                                {agreement.category}
+                            </span>
                         </span>
                     ))}
 
+                    {extraProducts > 0 && (
+                        <span
+                            className="
+                                shrink-0
+                                rounded
+                                bg-gray-100
+                                px-1.5
+                                py-1
+                                text-[9px]
+                                text-gray-500
+                            "
+                        >
+                            +{extraProducts}
+                        </span>
+                    )}
                 </div>
 
-                {/* ================= GUARANTOR ================= */}
-                <div
-                    className="
-                        hidden
-                        items-center
-                        gap-1.5
-                        rounded-lg
-                        bg-gray-50
-                        px-2.5
-                        py-2
-                        text-xs
-                        text-gray-500
-                        xl:flex
-                    "
-                >
-                    <Users size={14} />
+                {/* Extra information */}
+
+                <div className="hidden items-center gap-2 text-[9px] text-gray-400 sm:flex">
 
                     <span>
-                        {customer.guarantors.length}
+                        {customer.guarantors.length} guarantor
+                        {customer.guarantors.length !== 1
+                            ? "s"
+                            : ""}
                     </span>
-                </div>
 
-                {/* ================= ARROW ================= */}
-                <div
+                    <span className="text-gray-200">•</span>
+
+                    <span>
+                        {customer.cnic}
+                    </span>
+
+                </div>
+            </div>
+
+            {/* =====================================================
+                DESKTOP EXTRA INFORMATION
+            ===================================================== */}
+
+            <div
+                className="
+                    mt-2
+                    hidden
+                    items-center
+                    gap-1.5
+                    border-t
+                    border-gray-100
+                    pt-2
+                    lg:flex
+                "
+            >
+                <MapPin
+                    size={11}
+                    className="shrink-0 text-gray-400"
+                />
+
+                <span
                     className="
-                        ml-auto
-                        flex
-                        h-8
-                        w-8
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-lg
-                        bg-gray-50
+                        min-w-0
+                        truncate
+                        text-[9px]
                         text-gray-400
-                        transition
-                        group-hover:bg-blue-50
-                        group-hover:text-blue-600
                     "
                 >
-                    <ArrowRight
-                        size={16}
-                        className="
-                            transition-transform
-                            group-hover:translate-x-0.5
-                        "
-                    />
-                </div>
-
-            </div>
-
-            {/* ================= MOBILE EXTRA INFO ================= */}
-            <div className="mt-3 flex items-center gap-2 border-t border-gray-100 pt-3 md:hidden">
-
-                <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                    <Phone size={13} />
-                    {customer.phone}
-                </div>
-
-                <span className="text-gray-300">•</span>
-
-                <span className="text-xs text-gray-500">
-                    {totalAgreements} Agreement
-                    {totalAgreements !== 1 ? "s" : ""}
-                </span>
-
-                <span className="text-gray-300">•</span>
-
-                <span className="text-xs font-medium text-blue-600">
-                    Rs. {remainingBalance.toLocaleString()} left
-                </span>
-
-            </div>
-
-            {/* ================= ADDRESS ================= */}
-            <div className="mt-2 hidden items-center gap-1.5 text-[11px] text-gray-400 2xl:flex">
-                <MapPin size={12} />
-                <span className="truncate">
                     {customer.address}
                 </span>
             </div>
