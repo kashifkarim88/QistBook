@@ -12,7 +12,9 @@ import {
     Wallet,
     TrendingUp,
     Receipt,
+    Home,
 } from "lucide-react";
+import Link from "next/link";
 
 import { getDashboardStats } from "@/app/actions/dashboard";
 
@@ -114,7 +116,9 @@ function CategoryCard({
             className={`rounded-xl border p-4 ${containerClass}`}
         >
             <div className="flex items-center justify-between gap-3">
+
                 <div className="flex items-center gap-2">
+
                     <div
                         className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconClass}`}
                     >
@@ -196,6 +200,7 @@ export default async function StatisticsDashboardPage({
 
                 <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
+                    {/* Dashboard title */}
                     <div className="flex items-center gap-3">
 
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
@@ -211,14 +216,72 @@ export default async function StatisticsDashboardPage({
                                 Overall and period-based installment statistics
                             </p>
                         </div>
+
                     </div>
 
-                    <div className="flex w-fit items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-600 shadow-sm">
-                        <CalendarDays size={17} />
+                    {/* Right side actions */}
+                    <div className="flex flex-wrap items-center gap-2">
 
-                        <span>
-                            {formatToday()}
-                        </span>
+                        {/* Today */}
+                        <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm text-gray-600 shadow-sm">
+                            <CalendarDays size={17} />
+
+                            <span>
+                                {formatToday()}
+                            </span>
+                        </div>
+
+                        {/* Home */}
+                        <Link
+                            href="/dashboard"
+                            className="
+                                group
+                                inline-flex
+                                items-center
+                                gap-2
+                                rounded-xl
+                                border
+                                border-gray-200
+                                bg-white
+                                px-3
+                                py-2
+                                text-sm
+                                font-medium
+                                text-gray-700
+                                shadow-sm
+                                transition-all
+                                duration-200
+                                hover:border-blue-200
+                                hover:bg-blue-50
+                                hover:text-blue-700
+                                hover:shadow-md
+                                active:scale-95
+                                focus:outline-none
+                                focus:ring-2
+                                focus:ring-blue-200
+                                focus:ring-offset-2
+                            "
+                        >
+                            <span
+                                className="
+                                    flex
+                                    h-8
+                                    w-8
+                                    items-center
+                                    justify-center
+                                    rounded-lg
+                                    bg-blue-50
+                                    text-blue-600
+                                    transition-colors
+                                    group-hover:bg-blue-100
+                                "
+                            >
+                                <Home size={17} />
+                            </span>
+
+                            <span>Home</span>
+                        </Link>
+
                     </div>
                 </div>
 
@@ -363,6 +426,7 @@ export default async function StatisticsDashboardPage({
                             {/* Agreement Value */}
                             <div>
                                 <div className="flex items-center gap-2 text-gray-500">
+
                                     <CircleDollarSign
                                         size={17}
                                     />
@@ -386,6 +450,7 @@ export default async function StatisticsDashboardPage({
                             {/* Selected Agreement Collection */}
                             <div>
                                 <div className="flex items-center gap-2 text-gray-500">
+
                                     <Wallet size={17} />
 
                                     <p className="text-sm">
@@ -407,6 +472,7 @@ export default async function StatisticsDashboardPage({
                             {/* Period Collection */}
                             <div>
                                 <div className="flex items-center gap-2 text-gray-500">
+
                                     <Receipt size={17} />
 
                                     <p className="text-sm">
@@ -428,6 +494,7 @@ export default async function StatisticsDashboardPage({
                             {/* Outstanding */}
                             <div>
                                 <div className="flex items-center gap-2 text-gray-500">
+
                                     <Wallet size={17} />
 
                                     <p className="text-sm">
