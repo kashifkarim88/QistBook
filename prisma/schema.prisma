@@ -111,6 +111,7 @@ model InstallmentAgreement {
   mobileId    String?        @unique
 
   totalAmount Float
+  actualPrice   Float    @default(0)
   status      ContractStatus @default(ACTIVE)
   startDate   DateTime       @default(now()) @db.Date
   createdAt   DateTime       @default(now())

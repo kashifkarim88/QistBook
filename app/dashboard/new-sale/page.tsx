@@ -11,15 +11,19 @@ import {
     AlertCircle,
     ArrowLeft,
     Calendar,
-    Loader2
+    Loader2,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function NewSalePage() {
-    const [state, formAction, isPending] = useActionState(createSaleAction, null);
+    const [state, formAction, isPending] = useActionState(
+        createSaleAction,
+        null
+    );
+
     const formRef = useRef<HTMLFormElement>(null);
 
-    // Controlled form state to preserve data on error
+    // Controlled form state
     const [formData, setFormData] = useState({
         fullName: "",
         fatherName: "",
@@ -35,32 +39,52 @@ export default function NewSalePage() {
         engineNumber: "",
         chassisNumber: "",
         imei1: "",
-        imei2: ""
+        imei2: "",
     });
 
     const [category, setCategory] = useState<"BIKE" | "MOBILE">("BIKE");
+
+    // Financial state
+    const [actualPrice, setActualPrice] = useState<number | "">("");
     const [totalAmount, setTotalAmount] = useState<number | "">("");
     const [advancePaid, setAdvancePaid] = useState<number | "">("");
-    const [monthlyInstallment, setMonthlyInstallment] = useState<number | "">("");
+    const [monthlyInstallment, setMonthlyInstallment] = useState<
+        number | ""
+    >("");
 
+    // Remaining balance
     const remainingDues = Math.max(
         0,
-        (typeof totalAmount === "number" ? totalAmount : 0) - (typeof advancePaid === "number" ? advancePaid : 0)
+        (typeof totalAmount === "number" ? totalAmount : 0) -
+        (typeof advancePaid === "number" ? advancePaid : 0)
     );
 
-    // Default dates setup
+    // Calculate markup/profit
+    const agreementMarkup =
+        typeof actualPrice === "number" &&
+            typeof totalAmount === "number"
+            ? Math.max(0, totalAmount - actualPrice)
+            : 0;
+
+    // Default dates
     const todayStr = new Date().toISOString().split("T")[0];
+
     const getDefaultNextDueDate = (baseDateStr: string) => {
         if (!baseDateStr) return "";
+
         const date = new Date(baseDateStr);
         date.setMonth(date.getMonth() + 1);
+
         return date.toISOString().split("T")[0];
     };
 
     const [saleDate, setSaleDate] = useState<string>(todayStr);
-    const [nextDueDate, setNextDueDate] = useState<string>(getDefaultNextDueDate(todayStr));
 
-    // Handle clearing input fields ONLY on successful submit
+    const [nextDueDate, setNextDueDate] = useState<string>(
+        getDefaultNextDueDate(todayStr)
+    );
+
+    // Reset form after successful submission
     useEffect(() => {
         if (state?.success) {
             setFormData({
@@ -78,30 +102,49 @@ export default function NewSalePage() {
                 engineNumber: "",
                 chassisNumber: "",
                 imei1: "",
-                imei2: ""
+                imei2: "",
             });
+
+            setActualPrice("");
             setTotalAmount("");
             setAdvancePaid("");
-            setMonthlyInstallment(0);
+            setMonthlyInstallment("");
+
             setSaleDate(todayStr);
             setNextDueDate(getDefaultNextDueDate(todayStr));
+
             formRef.current?.reset();
         }
     }, [state?.success, todayStr]);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // General text input handler
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
-    const handleSaleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Sale date handler
+    const handleSaleDateChange = (
+        e: React.ChangeEvent<HTMLInputElement>
+    ) => {
         const newDate = e.target.value;
+
         setSaleDate(newDate);
         setNextDueDate(getDefaultNextDueDate(newDate));
     };
 
     return (
-        <form ref={formRef} action={formAction} className="max-w-5xl mx-auto space-y-6 pb-12 relative">
+        <form
+            ref={formRef}
+            action={formAction}
+            className="max-w-5xl mx-auto space-y-6 pb-12 relative"
+        >
             {/* TOP PROGRESS BAR */}
             {isPending && (
                 <div className="fixed top-0 left-0 right-0 h-1 bg-slate-100 z-50 overflow-hidden">
@@ -116,11 +159,17 @@ export default function NewSalePage() {
                         href="/dashboard"
                         className="text-xs font-semibold text-slate-500 hover:text-slate-800 inline-flex items-center gap-1 mb-2 transition-colors"
                     >
-                        <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        Back to Dashboard
                     </Link>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">New Installment Sale</h1>
+
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                        New Installment Sale
+                    </h1>
+
                     <p className="text-xs text-slate-500 mt-0.5">
-                        Register a new client, guarantor, and generate the installment contract.
+                        Register a new client, guarantor, and generate the
+                        installment contract.
                     </p>
                 </div>
             </div>
@@ -139,12 +188,19 @@ export default function NewSalePage() {
                     <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
                         <User className="w-5 h-5" />
                     </div>
-                    <h2 className="text-base font-bold text-slate-800">Customer Personal Information</h2>
+
+                    <h2 className="text-base font-bold text-slate-800">
+                        Customer Personal Information
+                    </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Full Name */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Full Name *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Full Name *
+                        </label>
+
                         <input
                             type="text"
                             name="fullName"
@@ -156,8 +212,12 @@ export default function NewSalePage() {
                         />
                     </div>
 
+                    {/* Father Name */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Father Name *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Father Name *
+                        </label>
+
                         <input
                             type="text"
                             name="fatherName"
@@ -169,8 +229,12 @@ export default function NewSalePage() {
                         />
                     </div>
 
+                    {/* Phone */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Phone Number *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Phone Number *
+                        </label>
+
                         <input
                             type="text"
                             name="phone"
@@ -182,8 +246,12 @@ export default function NewSalePage() {
                         />
                     </div>
 
+                    {/* CNIC */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">CNIC Number *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            CNIC Number *
+                        </label>
+
                         <input
                             type="text"
                             name="cnic"
@@ -195,8 +263,12 @@ export default function NewSalePage() {
                         />
                     </div>
 
+                    {/* Address */}
                     <div className="md:col-span-2">
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Residential Address *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Residential Address *
+                        </label>
+
                         <input
                             type="text"
                             name="address"
@@ -216,12 +288,19 @@ export default function NewSalePage() {
                     <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
                         <ShieldCheck className="w-5 h-5" />
                     </div>
-                    <h2 className="text-base font-bold text-slate-800">Guarantor Details</h2>
+
+                    <h2 className="text-base font-bold text-slate-800">
+                        Guarantor Details
+                    </h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Guarantor Name */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Guarantor Name *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Guarantor Name *
+                        </label>
+
                         <input
                             type="text"
                             name="guarantorName"
@@ -233,8 +312,12 @@ export default function NewSalePage() {
                         />
                     </div>
 
+                    {/* Guarantor CNIC */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Guarantor CNIC *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Guarantor CNIC *
+                        </label>
+
                         <input
                             type="text"
                             name="guarantorCnic"
@@ -246,8 +329,12 @@ export default function NewSalePage() {
                         />
                     </div>
 
+                    {/* Guarantor Phone */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Guarantor Phone *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Guarantor Phone *
+                        </label>
+
                         <input
                             type="text"
                             name="guarantorPhone"
@@ -266,42 +353,61 @@ export default function NewSalePage() {
                 <div className="flex items-center justify-between mb-5 border-b border-slate-100 pb-3">
                     <div className="flex items-center gap-2">
                         <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
-                            {category === "BIKE" ? <Bike className="w-5 h-5" /> : <Smartphone className="w-5 h-5" />}
+                            {category === "BIKE" ? (
+                                <Bike className="w-5 h-5" />
+                            ) : (
+                                <Smartphone className="w-5 h-5" />
+                            )}
                         </div>
-                        <h2 className="text-base font-bold text-slate-800">Item Details</h2>
+
+                        <h2 className="text-base font-bold text-slate-800">
+                            Item Details
+                        </h2>
                     </div>
 
-                    <div className="flex bg-slate-100 p-1 rounded-xl">
+                    {/* Category Switch */}
+                    <div className="inline-flex items-center gap-1 p-1.5 bg-slate-100/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-inner">
                         <button
                             type="button"
                             onClick={() => setCategory("BIKE")}
-                            className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${category === "BIKE"
-                                ? "bg-white text-emerald-600 shadow-sm"
-                                : "text-slate-500 hover:text-slate-800"
+                            className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all duration-200 ease-out flex items-center gap-2 ${category === "BIKE"
+                                ? "bg-white text-emerald-600 shadow-sm shadow-slate-200/50 border border-slate-100 scale-[1.02]"
+                                : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
                                 }`}
                         >
-                            <Bike className="w-3.5 h-3.5" /> Motor Bike
+                            <Bike className="w-4 h-4 transition-transform duration-200" />
+                            <span>Bike</span>
                         </button>
 
                         <button
                             type="button"
                             onClick={() => setCategory("MOBILE")}
-                            className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${category === "MOBILE"
-                                ? "bg-white text-emerald-600 shadow-sm"
-                                : "text-slate-500 hover:text-slate-800"
+                            className={`px-4 py-2 text-xs font-semibold rounded-xl transition-all duration-200 ease-out flex items-center gap-2 ${category === "MOBILE"
+                                ? "bg-white text-emerald-600 shadow-sm shadow-slate-200/50 border border-slate-100 scale-[1.02]"
+                                : "text-slate-500 hover:text-slate-900 hover:bg-slate-200/50"
                                 }`}
                         >
-                            <Smartphone className="w-3.5 h-3.5" /> Mobile Phone
+                            <Smartphone className="w-4 h-4 transition-transform duration-200" />
+                            <span>Mobile</span>
                         </button>
                     </div>
                 </div>
 
-                <input type="hidden" name="category" value={category} />
+                <input
+                    type="hidden"
+                    name="category"
+                    value={category}
+                />
 
+                {/* BIKE */}
                 {category === "BIKE" ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Brand */}
                         <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Bike Brand *</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                                Bike Brand *
+                            </label>
+
                             <input
                                 type="text"
                                 name="brand"
@@ -313,8 +419,12 @@ export default function NewSalePage() {
                             />
                         </div>
 
+                        {/* Model */}
                         <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Model *</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                                Model *
+                            </label>
+
                             <input
                                 type="text"
                                 name="model"
@@ -326,8 +436,12 @@ export default function NewSalePage() {
                             />
                         </div>
 
+                        {/* Color */}
                         <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Color</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                                Color
+                            </label>
+
                             <input
                                 type="text"
                                 name="color"
@@ -338,8 +452,12 @@ export default function NewSalePage() {
                             />
                         </div>
 
+                        {/* Engine */}
                         <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Engine Number *</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                                Engine Number *
+                            </label>
+
                             <input
                                 type="text"
                                 name="engineNumber"
@@ -351,8 +469,12 @@ export default function NewSalePage() {
                             />
                         </div>
 
+                        {/* Chassis */}
                         <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Chassis Number *</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                                Chassis Number *
+                            </label>
+
                             <input
                                 type="text"
                                 name="chassisNumber"
@@ -365,9 +487,14 @@ export default function NewSalePage() {
                         </div>
                     </div>
                 ) : (
+                    /* MOBILE */
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Brand */}
                         <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Company / Brand *</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                                Company / Brand *
+                            </label>
+
                             <input
                                 type="text"
                                 name="brand"
@@ -379,8 +506,12 @@ export default function NewSalePage() {
                             />
                         </div>
 
+                        {/* Model */}
                         <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">Mobile Model *</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                                Mobile Model *
+                            </label>
+
                             <input
                                 type="text"
                                 name="model"
@@ -392,8 +523,12 @@ export default function NewSalePage() {
                             />
                         </div>
 
+                        {/* IMEI 1 */}
                         <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">IMEI 1 *</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                                IMEI 1 *
+                            </label>
+
                             <input
                                 type="text"
                                 name="imei1"
@@ -405,8 +540,12 @@ export default function NewSalePage() {
                             />
                         </div>
 
+                        {/* IMEI 2 */}
                         <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">IMEI 2 (Optional)</label>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                                IMEI 2 (Optional)
+                            </label>
+
                             <input
                                 type="text"
                                 name="imei2"
@@ -420,20 +559,27 @@ export default function NewSalePage() {
                 )}
             </div>
 
-            {/* SECTION 4: FINANCIAL BREAKDOWN & SCHEDULE */}
+            {/* SECTION 4: FINANCIAL BREAKDOWN */}
             <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-5">
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                     <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
                         <Calculator className="w-5 h-5" />
                     </div>
-                    <h2 className="text-base font-bold text-slate-800">Agreement & Financial Schedule</h2>
+
+                    <h2 className="text-base font-bold text-slate-800">
+                        Agreement & Financial Schedule
+                    </h2>
                 </div>
 
+                {/* Dates */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                    {/* Sale Date */}
                     <div>
                         <label className="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5 text-emerald-600" /> Sale / Agreement Date *
+                            <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                            Sale / Agreement Date *
                         </label>
+
                         <input
                             type="date"
                             name="createdAt"
@@ -444,60 +590,157 @@ export default function NewSalePage() {
                         />
                     </div>
 
+                    {/* Due Date */}
                     <div>
                         <label className="block text-xs font-semibold text-slate-600 mb-1.5 flex items-center gap-1.5">
-                            <Calendar className="w-3.5 h-3.5 text-emerald-600" /> First Installment Due Date *
+                            <Calendar className="w-3.5 h-3.5 text-emerald-600" />
+                            First Installment Due Date *
                         </label>
+
                         <input
                             type="date"
                             name="nextDueDate"
                             required
                             value={nextDueDate}
-                            onChange={(e) => setNextDueDate(e.target.value)}
+                            onChange={(e) =>
+                                setNextDueDate(e.target.value)
+                            }
                             className="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all [color-scheme:light]"
                         />
                     </div>
                 </div>
 
+                {/* Financial Inputs */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* ACTUAL PRICE */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Total Agreed Price (PKR) *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Actual Price (PKR) *
+                        </label>
+
+                        <input
+                            type="number"
+                            name="actualPrice"
+                            required
+                            min="0"
+                            step="0.01"
+                            placeholder="e.g. 100000"
+                            value={actualPrice}
+                            onChange={(e) =>
+                                setActualPrice(
+                                    e.target.value === ""
+                                        ? ""
+                                        : parseFloat(e.target.value)
+                                )
+                            }
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                        />
+                    </div>
+
+                    {/* AGREEMENT PRICE */}
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Total Agreed Price (PKR) *
+                        </label>
+
                         <input
                             type="number"
                             name="totalAmount"
                             required
                             min="0"
-                            placeholder="e.g. 130000"
+                            step="0.01"
+                            placeholder="e.g. 125000"
                             value={totalAmount}
-                            onChange={(e) => setTotalAmount(e.target.value === "" ? "" : parseFloat(e.target.value))}
+                            onChange={(e) =>
+                                setTotalAmount(
+                                    e.target.value === ""
+                                        ? ""
+                                        : parseFloat(e.target.value)
+                                )
+                            }
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                         />
                     </div>
 
+                    {/* ADVANCE */}
                     <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Advance Received (PKR) *</label>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Advance Received (PKR) *
+                        </label>
+
                         <input
                             type="number"
                             name="advancePaid"
                             required
                             min="0"
+                            step="0.01"
                             placeholder="e.g. 30000"
                             value={advancePaid}
-                            onChange={(e) => setAdvancePaid(e.target.value === "" ? "" : parseFloat(e.target.value))}
+                            onChange={(e) =>
+                                setAdvancePaid(
+                                    e.target.value === ""
+                                        ? ""
+                                        : parseFloat(e.target.value)
+                                )
+                            }
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                         />
                     </div>
+                </div>
 
-                    <div>
-                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">Calculated Remaining Balance</label>
-                        <div className="w-full bg-amber-50/60 border border-amber-200/80 rounded-lg p-2.5 text-amber-700 text-lg font-bold">
+                {/* FINANCIAL SUMMARY */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Markup */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                        <p className="text-xs font-semibold text-blue-600 mb-1">
+                            Agreement Markup / Profit
+                        </p>
+
+                        <p className="text-xl font-bold text-blue-700">
+                            PKR {agreementMarkup.toLocaleString()}
+                        </p>
+
+                        <p className="text-[11px] text-blue-500 mt-1">
+                            Agreed Price − Actual Price
+                        </p>
+                    </div>
+
+                    {/* Remaining */}
+                    <div className="bg-amber-50/60 border border-amber-200/80 rounded-xl p-4">
+                        <p className="text-xs font-semibold text-amber-600 mb-1">
+                            Remaining Balance
+                        </p>
+
+                        <p className="text-xl font-bold text-amber-700">
                             PKR {remainingDues.toLocaleString()}
-                        </div>
+                        </p>
+
+                        <p className="text-[11px] text-amber-500 mt-1">
+                            Agreed Price − Advance
+                        </p>
+                    </div>
+
+                    {/* Total */}
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4">
+                        <p className="text-xs font-semibold text-emerald-600 mb-1">
+                            Total Agreement
+                        </p>
+
+                        <p className="text-xl font-bold text-emerald-700">
+                            PKR{" "}
+                            {typeof totalAmount === "number"
+                                ? totalAmount.toLocaleString()
+                                : "0"}
+                        </p>
+
+                        <p className="text-[11px] text-emerald-500 mt-1">
+                            Final amount customer will pay
+                        </p>
                     </div>
                 </div>
             </div>
 
-            {/* SUBMIT BUTTON WITH SPINNER */}
+            {/* SUBMIT BUTTON */}
             <div className="flex justify-end pt-2">
                 <button
                     type="submit"

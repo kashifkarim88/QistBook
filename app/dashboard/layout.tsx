@@ -26,7 +26,7 @@ export default function DashboardLayout({
         { name: "Overview & Calls", href: "/dashboard", icon: LayoutDashboard, color: "text-blue-600" },
         { name: "New Installment Sale", href: "/dashboard/new-sale", icon: PlusCircle, color: "text-emerald-600" },
         { name: "Payment Record", href: "/dashboard/Customers", icon: CreditCard, color: "text-purple-600" },
-        { name: "Dashboard", href: "/statistic", icon: LayoutDashboard, color: "text-blue-600" },
+        { name: "Dashboard", href: "/dashboard/statistic", icon: LayoutDashboard, color: "text-blue-600" },
     ];
 
     return (
