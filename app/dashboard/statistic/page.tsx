@@ -4,7 +4,6 @@ import StatisticsHeader from "./components/StatisticsHeader";
 import StatisticsFilters from "./components/StatisticsFilters";
 
 import OverviewSection from "./components/overview/OverviewSection";
-import SalesProfitSection from "./components/sales/SalesProfitSection";
 import CollectionsSection from "./components/collections/CollectionsSection";
 import CategorySection from "./components/categories/CategorySection";
 
@@ -85,16 +84,6 @@ export default async function StatisticsPage({
 
             <section>
                 <OverviewSection
-                    data={statistics}
-                />
-            </section>
-
-            {/* ==========================================
-                2. SALES & PROFIT
-            ========================================== */}
-
-            <section>
-                <SalesProfitSection
                     data={statistics}
                 />
             </section>

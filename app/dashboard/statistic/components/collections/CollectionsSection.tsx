@@ -28,11 +28,11 @@ export default function CollectionsSection({
             <CollectionOverview data={data} />
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                <CollectionTrendChart data={data} />
-                <ReceivablesCard data={data} />
+                {/* <CollectionTrendChart data={data} /> */}
+                {/* <ReceivablesCard data={data} /> */}
             </div>
 
-            <DefaultRiskCard data={data} />
+            {/* <DefaultRiskCard data={data} /> */}
         </section>
     );
 }
