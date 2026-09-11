@@ -23,7 +23,10 @@ export default function NewSalePage() {
 
     const formRef = useRef<HTMLFormElement>(null);
 
-    // Controlled form state
+    // =========================================================
+    // CONTROLLED FORM STATE
+    // =========================================================
+
     const [formData, setFormData] = useState({
         fullName: "",
         fatherName: "",
@@ -44,29 +47,48 @@ export default function NewSalePage() {
 
     const [category, setCategory] = useState<"BIKE" | "MOBILE">("BIKE");
 
-    // Financial state
+    // =========================================================
+    // FINANCIAL STATE
+    // =========================================================
+
     const [actualPrice, setActualPrice] = useState<number | "">("");
     const [totalAmount, setTotalAmount] = useState<number | "">("");
     const [advancePaid, setAdvancePaid] = useState<number | "">("");
+
+    // NEW INSTALLMENT AMOUNT
+    const [installmentAmount, setInstallmentAmount] = useState<
+        number | ""
+    >("");
+
+    // Existing monthly installment used by InstallmentPayment
     const [monthlyInstallment, setMonthlyInstallment] = useState<
         number | ""
     >("");
 
-    // Remaining balance
+    // =========================================================
+    // REMAINING BALANCE
+    // =========================================================
+
     const remainingDues = Math.max(
         0,
         (typeof totalAmount === "number" ? totalAmount : 0) -
         (typeof advancePaid === "number" ? advancePaid : 0)
     );
 
-    // Calculate markup/profit
+    // =========================================================
+    // AGREEMENT MARKUP / PROFIT
+    // =========================================================
+
     const agreementMarkup =
         typeof actualPrice === "number" &&
             typeof totalAmount === "number"
             ? Math.max(0, totalAmount - actualPrice)
             : 0;
 
-    // Default dates
+    // =========================================================
+    // DEFAULT DATES
+    // =========================================================
+
     const todayStr = new Date().toISOString().split("T")[0];
 
     const getDefaultNextDueDate = (baseDateStr: string) => {
@@ -84,7 +106,10 @@ export default function NewSalePage() {
         getDefaultNextDueDate(todayStr)
     );
 
-    // Reset form after successful submission
+    // =========================================================
+    // RESET FORM AFTER SUCCESSFUL SUBMISSION
+    // =========================================================
+
     useEffect(() => {
         if (state?.success) {
             setFormData({
@@ -108,6 +133,7 @@ export default function NewSalePage() {
             setActualPrice("");
             setTotalAmount("");
             setAdvancePaid("");
+            setInstallmentAmount("");
             setMonthlyInstallment("");
 
             setSaleDate(todayStr);
@@ -117,7 +143,10 @@ export default function NewSalePage() {
         }
     }, [state?.success, todayStr]);
 
-    // General text input handler
+    // =========================================================
+    // GENERAL TEXT INPUT HANDLER
+    // =========================================================
+
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -129,7 +158,10 @@ export default function NewSalePage() {
         }));
     };
 
-    // Sale date handler
+    // =========================================================
+    // SALE DATE HANDLER
+    // =========================================================
+
     const handleSaleDateChange = (
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
@@ -139,20 +171,30 @@ export default function NewSalePage() {
         setNextDueDate(getDefaultNextDueDate(newDate));
     };
 
+    // =========================================================
+    // RENDER
+    // =========================================================
+
     return (
         <form
             ref={formRef}
             action={formAction}
             className="max-w-5xl mx-auto space-y-6 pb-12 relative"
         >
-            {/* TOP PROGRESS BAR */}
+            {/* =====================================================
+                TOP PROGRESS BAR
+            ====================================================== */}
+
             {isPending && (
                 <div className="fixed top-0 left-0 right-0 h-1 bg-slate-100 z-50 overflow-hidden">
                     <div className="h-full bg-emerald-600 animate-pulse w-full transform -translate-x-full animate-[shimmer_1.5s_infinite]" />
                 </div>
             )}
 
-            {/* HEADER */}
+            {/* =====================================================
+                HEADER
+            ====================================================== */}
+
             <div className="flex items-center justify-between">
                 <div>
                     <Link
@@ -174,7 +216,10 @@ export default function NewSalePage() {
                 </div>
             </div>
 
-            {/* ERROR NOTIFICATION */}
+            {/* =====================================================
+                ERROR NOTIFICATION
+            ====================================================== */}
+
             {state?.error && (
                 <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-200">
                     <AlertCircle className="w-5 h-5 shrink-0 text-rose-500" />
@@ -182,7 +227,10 @@ export default function NewSalePage() {
                 </div>
             )}
 
-            {/* SECTION 1: CUSTOMER DETAILS */}
+            {/* =====================================================
+                SECTION 1: CUSTOMER DETAILS
+            ====================================================== */}
+
             <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center gap-2 mb-5 border-b border-slate-100 pb-3">
                     <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
@@ -282,7 +330,10 @@ export default function NewSalePage() {
                 </div>
             </div>
 
-            {/* SECTION 2: GUARANTOR DETAILS */}
+            {/* =====================================================
+                SECTION 2: GUARANTOR DETAILS
+            ====================================================== */}
+
             <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center gap-2 mb-5 border-b border-slate-100 pb-3">
                     <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
@@ -348,7 +399,10 @@ export default function NewSalePage() {
                 </div>
             </div>
 
-            {/* SECTION 3: PRODUCT DETAILS */}
+            {/* =====================================================
+                SECTION 3: PRODUCT DETAILS
+            ====================================================== */}
+
             <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5 border-b border-slate-100 pb-3">
                     <div className="flex items-center gap-2">
@@ -399,7 +453,10 @@ export default function NewSalePage() {
                     value={category}
                 />
 
-                {/* BIKE */}
+                {/* =================================================
+                    BIKE
+                ================================================== */}
+
                 {category === "BIKE" ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {/* Brand */}
@@ -487,7 +544,10 @@ export default function NewSalePage() {
                         </div>
                     </div>
                 ) : (
-                    /* MOBILE */
+                    /* =================================================
+                       MOBILE
+                    ================================================== */
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Brand */}
                         <div>
@@ -559,7 +619,10 @@ export default function NewSalePage() {
                 )}
             </div>
 
-            {/* SECTION 4: FINANCIAL BREAKDOWN */}
+            {/* =====================================================
+                SECTION 4: FINANCIAL BREAKDOWN
+            ====================================================== */}
+
             <div className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-5">
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                     <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
@@ -571,7 +634,10 @@ export default function NewSalePage() {
                     </h2>
                 </div>
 
-                {/* Dates */}
+                {/* =================================================
+                    DATES
+                ================================================== */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60">
                     {/* Sale Date */}
                     <div>
@@ -610,8 +676,12 @@ export default function NewSalePage() {
                     </div>
                 </div>
 
-                {/* Financial Inputs */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* =================================================
+                    FINANCIAL INPUTS
+                ================================================== */}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
                     {/* ACTUAL PRICE */}
                     <div>
                         <label className="block text-xs font-semibold text-slate-600 mb-1.5">
@@ -686,10 +756,39 @@ export default function NewSalePage() {
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                         />
                     </div>
+
+                    {/* INSTALLMENT AMOUNT */}
+                    <div>
+                        <label className="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Installment Amount (PKR) *
+                        </label>
+
+                        <input
+                            type="number"
+                            name="installmentAmount"
+                            required
+                            min="0"
+                            step="0.01"
+                            placeholder="e.g. 10000"
+                            value={installmentAmount}
+                            onChange={(e) =>
+                                setInstallmentAmount(
+                                    e.target.value === ""
+                                        ? ""
+                                        : parseFloat(e.target.value)
+                                )
+                            }
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                        />
+                    </div>
                 </div>
 
-                {/* FINANCIAL SUMMARY */}
+                {/* =================================================
+                    FINANCIAL SUMMARY
+                ================================================== */}
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
                     {/* Markup */}
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                         <p className="text-xs font-semibold text-blue-600 mb-1">
@@ -740,7 +839,10 @@ export default function NewSalePage() {
                 </div>
             </div>
 
-            {/* SUBMIT BUTTON */}
+            {/* =====================================================
+                SUBMIT BUTTON
+            ====================================================== */}
+
             <div className="flex justify-end pt-2">
                 <button
                     type="submit"

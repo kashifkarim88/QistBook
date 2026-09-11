@@ -15,18 +15,20 @@ type Props = {
     monthlyInstallment: number;
     paymentDate: string;
     nextDueDate: string;
+    installmentAmount: number;
 };
 
 export default function PaymentForm({
     agreementId,
     remainingBalance,
     monthlyInstallment,
+    installmentAmount,
     paymentDate,
     nextDueDate,
 }: Props) {
     const [amount, setAmount] = useState(
-        monthlyInstallment > 0
-            ? String(monthlyInstallment)
+        installmentAmount > 0
+            ? String(installmentAmount)
             : ""
     );
 

@@ -37,11 +37,13 @@ export async function createSaleAction(
 
         const engineNumber =
             (formData.get("engineNumber") as string) || undefined;
+
         const chassisNumber =
             (formData.get("chassisNumber") as string) || undefined;
 
         const imei1 =
             (formData.get("imei1") as string) || undefined;
+
         const imei2 =
             (formData.get("imei2") as string) || undefined;
 
@@ -58,10 +60,20 @@ export async function createSaleAction(
             formData.get("advancePaid") as string
         );
 
+        // Existing monthly installment
         const monthlyInstallment =
-            parseFloat(formData.get("monthlyInstallment") as string) || 0;
+            parseFloat(
+                formData.get("monthlyInstallment") as string
+            ) || 0;
 
         monthlyInstallmentVal = monthlyInstallment;
+
+        // NEW:
+        // Installment amount coming from frontend
+        const installmentAmount =
+            parseFloat(
+                formData.get("installmentAmount") as string
+            ) || 0;
 
         // Validate numeric values
         if (
@@ -100,11 +112,22 @@ export async function createSaleAction(
             };
         }
 
+        // NEW validation
+        if (installmentAmount <= 0) {
+            return {
+                error:
+                    "Installment amount must be greater than zero.",
+            };
+        }
+
         const remainingBalance = totalAmount - advancePaid;
 
         // 5. Dates
-        const createdAtInput = formData.get("createdAt") as string;
-        const nextDueDateInput = formData.get("nextDueDate") as string;
+        const createdAtInput =
+            formData.get("createdAt") as string;
+
+        const nextDueDateInput =
+            formData.get("nextDueDate") as string;
 
         const startDate = createdAtInput
             ? new Date(createdAtInput)
@@ -121,22 +144,25 @@ export async function createSaleAction(
         await prisma.$transaction(
             async (tx) => {
                 // Upsert customer
-                const customer = await tx.customer.upsert({
-                    where: { cnic },
-                    update: {
-                        fullName,
-                        fatherName,
-                        phone,
-                        address,
-                    },
-                    create: {
-                        fullName,
-                        fatherName,
-                        phone,
-                        address,
-                        cnic,
-                    },
-                });
+                const customer =
+                    await tx.customer.upsert({
+                        where: { cnic },
+
+                        update: {
+                            fullName,
+                            fatherName,
+                            phone,
+                            address,
+                        },
+
+                        create: {
+                            fullName,
+                            fatherName,
+                            phone,
+                            address,
+                            cnic,
+                        },
+                    });
 
                 // Create guarantor
                 await tx.guarantor.create({
@@ -200,10 +226,7 @@ export async function createSaleAction(
                             bikeId,
                             mobileId,
 
-                            // NEW
                             actualPrice,
-
-                            // Final installment/agreement price
                             totalAmount,
 
                             startDate,
@@ -212,7 +235,15 @@ export async function createSaleAction(
 
                 createdAgreementId = agreement.id;
 
-                // 9. Create Advance Payment
+                // 9. Create Installment Amount
+                await tx.installmentAmounts.create({
+                    data: {
+                        agreementId: agreement.id,
+                        installmentAmount,
+                    },
+                });
+
+                // 10. Create Advance Payment
                 await tx.installmentPayment.create({
                     data: {
                         agreementId: agreement.id,
@@ -231,13 +262,18 @@ export async function createSaleAction(
             }
         );
     } catch (err: any) {
-        console.error("Database Submission Error:", err);
+        console.error(
+            "Database Submission Error:",
+            err
+        );
 
         if (
-            err instanceof Prisma.PrismaClientKnownRequestError &&
+            err instanceof
+            Prisma.PrismaClientKnownRequestError &&
             err.code === "P2002"
         ) {
-            const target = (err.meta?.target as string[]) || [];
+            const target =
+                (err.meta?.target as string[]) || [];
 
             if (
                 target.includes("engineNumber") ||
@@ -272,7 +308,7 @@ export async function createSaleAction(
         };
     }
 
-    // 10. Redirect to receipt
+    // 11. Redirect to receipt
     if (createdAgreementId) {
         redirect(
             `/dashboard/sales/${createdAgreementId}/receipt?monthlyInstallment=${monthlyInstallmentVal}`

@@ -30,8 +30,8 @@ enum PaymentType {
 model User {
   id              String   @id @default(uuid())
   username        String   @unique
-  passwordHash    String   
-  recoveryKeyHash String   
+  passwordHash    String
+  recoveryKeyHash String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -44,7 +44,7 @@ model Customer {
   id         String   @id @default(uuid())
   fullName   String
   fatherName String
-  phone      String   
+  phone      String
   address    String
   cnic       String   @unique
   createdAt  DateTime @default(now())
@@ -105,36 +105,44 @@ model Mobile {
 
 model InstallmentAgreement {
   id          String         @id @default(uuid())
-  customerId  String         
+  customerId  String
   category    ItemCategory
   bikeId      String?        @unique
   mobileId    String?        @unique
-
   totalAmount Float
-  actualPrice   Float    @default(0)
+  actualPrice Float          @default(0)
   status      ContractStatus @default(ACTIVE)
   startDate   DateTime       @default(now()) @db.Date
   createdAt   DateTime       @default(now())
 
-  customer Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  bike     Bike?                @relation(fields: [bikeId], references: [id], onDelete: Restrict)
-  mobile   Mobile?              @relation(fields: [mobileId], references: [id], onDelete: Restrict)
-  payments InstallmentPayment[]
+  customer           Customer             @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  bike               Bike?                @relation(fields: [bikeId], references: [id], onDelete: Restrict)
+  mobile             Mobile?              @relation(fields: [mobileId], references: [id], onDelete: Restrict)
+  payments           InstallmentPayment[]
+  installmentAmounts InstallmentAmounts[]
 
   @@index([customerId])
   @@index([status])
 }
 
+model InstallmentAmounts {
+  id                String @id @default(uuid())
+  agreementId       String
+  installmentAmount Float   @default(0)
+
+  agreement InstallmentAgreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+}
+
 model InstallmentPayment {
-  id               String      @id @default(uuid())
-  agreementId      String
-  paymentType      PaymentType
-  amountPaid       Float
-  remainingBalance Float
-  monthlyInstallment Float     @default(0)
-  paymentDate      DateTime    @default(now()) @db.Date
-  nextDueDate      DateTime?   @db.Date
-  createdAt        DateTime    @default(now())
+  id                 String      @id @default(uuid())
+  agreementId        String
+  paymentType        PaymentType
+  amountPaid         Float
+  remainingBalance   Float
+  monthlyInstallment Float       @default(0)
+  paymentDate        DateTime    @default(now()) @db.Date
+  nextDueDate        DateTime?   @db.Date
+  createdAt          DateTime    @default(now())
 
   agreement InstallmentAgreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
 

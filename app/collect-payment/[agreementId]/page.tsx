@@ -34,12 +34,15 @@ export default async function CollectPaymentPage({ params }: PageProps) {
             },
             bike: true,
             mobile: true,
+
             payments: {
                 orderBy: {
                     createdAt: "desc",
                 },
                 take: 1,
             },
+
+            installmentAmounts: true,
         },
     });
 
@@ -49,12 +52,16 @@ export default async function CollectPaymentPage({ params }: PageProps) {
 
     const latestPayment = agreement.payments[0];
 
+
     /*
      * Current remaining balance
      */
     const remainingBalance = Number(
         latestPayment?.remainingBalance ?? agreement.totalAmount
     );
+
+    const installmentAmount =
+        agreement.installmentAmounts[0]?.installmentAmount ?? 0;
 
     /*
      * Today's payment date
@@ -247,6 +254,7 @@ export default async function CollectPaymentPage({ params }: PageProps) {
                         monthlyInstallment={monthlyInstallment}
                         paymentDate={formattedPaymentDate}
                         nextDueDate={formattedNextDueDate}
+                        installmentAmount={installmentAmount}
                     />
                 </div>
 
