@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Rahim Dad Autos",
   description: "Installment and customer management system",
+  manifest: "/manifest.webmanifest",
 };
 
 export default function RootLayout({
