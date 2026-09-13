@@ -81,7 +81,11 @@ export default async function ReceiptPage({
                 </h2>
 
                 <p className="text-xs text-gray-600">
-                    Main Market Road, City • Contact: +92 300 0000000
+                    <span className="font-bold">Address -</span> Gulbahr road near Nasir Mohammad hospital Peshawar
+                </p>
+
+                <p className="text-[11px] text-slate-600 mt-0.5">
+                    <span className="font-bold">Phone  -</span> 03130314830      <span className="font-bold">Easypaisa -</span> 03334141040
                 </p>
 
                 <p className="text-xs font-semibold mt-1">

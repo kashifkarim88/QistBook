@@ -1,3 +1,6 @@
+
+//test reciept - http://localhost:3000/dashboard/sales/c1ec874c-23f3-4995-ad67-5f686c539a8f/receipt?monthlyInstallment=0
+
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import PrintButton from "./PrintButton";
@@ -312,9 +315,10 @@ export default async function PaymentReceiptPage({
                             </h2>
 
                             <p className="text-[11px] text-slate-600 mt-0.5">
-                                Main Market Road, City
-                                <span className="mx-1">•</span>
-                                Contact: +92 300 0000000
+                                <span className="font-bold">Address -</span> Gulbahr road near Nasir Mohammad hospital Peshawar
+                            </p>
+                            <p className="text-[11px] text-slate-600 mt-0.5">
+                                <span className="font-bold">Phone</span> - 03130314830      <span className="font-bold">Easypaisa</span> - 03334141040
                             </p>
 
                             <p className="text-[12px] font-bold uppercase mt-1">
@@ -360,54 +364,6 @@ export default async function PaymentReceiptPage({
                                         ? "Installment"
                                         : "Advance"}
                                 </span>
-                            </div>
-
-                        </div>
-
-
-                        {/* =================================================
-                            IDENTIFICATION
-                        ================================================= */}
-
-                        <div
-                            className="
-                                grid
-                                grid-cols-3
-                                gap-4
-                                mb-3
-                                text-[9px]
-                                text-slate-600
-                            "
-                        >
-
-                            <div>
-                                <span className="font-bold text-slate-700">
-                                    Payment ID:
-                                </span>
-
-                                <p className="font-mono text-[8px] break-all text-slate-500 mt-0.5">
-                                    {payment.id}
-                                </p>
-                            </div>
-
-                            <div>
-                                <span className="font-bold text-slate-700">
-                                    Agreement ID:
-                                </span>
-
-                                <p className="font-mono text-[8px] break-all text-slate-500 mt-0.5">
-                                    {agreement.id}
-                                </p>
-                            </div>
-
-                            <div>
-                                <span className="font-bold text-slate-700">
-                                    Customer ID:
-                                </span>
-
-                                <p className="font-mono text-[8px] break-all text-slate-500 mt-0.5">
-                                    {agreement.customer.id}
-                                </p>
                             </div>
 
                         </div>
