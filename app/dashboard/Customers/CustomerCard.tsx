@@ -2,12 +2,11 @@ import Link from "next/link";
 import {
     User,
     Phone,
-    CreditCard,
-    MapPin,
     Users,
     Bike,
     Smartphone,
     ArrowRight,
+    Wallet,
 } from "lucide-react";
 
 type CustomerCardProps = {
@@ -43,7 +42,8 @@ export default function CustomerCard({
     const totalAgreements = customer.agreements.length;
 
     const totalAmount = customer.agreements.reduce(
-        (sum, agreement) => sum + agreement.totalAmount,
+        (sum, agreement) =>
+            sum + agreement.totalAmount,
         0
     );
 
@@ -55,16 +55,11 @@ export default function CustomerCard({
         0
     );
 
-    const activeAgreements = customer.agreements.filter(
-        (agreement) => agreement.status === "ACTIVE"
-    ).length;
-
-    const visibleProducts = customer.agreements.slice(0, 2);
-
-    const extraProducts =
-        customer.agreements.length > 2
-            ? customer.agreements.length - 2
-            : 0;
+    const activeAgreements =
+        customer.agreements.filter(
+            (agreement) =>
+                agreement.status === "ACTIVE"
+        ).length;
 
     return (
         <Link
@@ -73,27 +68,25 @@ export default function CustomerCard({
                 group
                 block
                 w-full
-                min-w-0
                 overflow-hidden
-                rounded-lg
+                rounded-xl
                 border
-                border-gray-200
+                border-slate-200
                 bg-white
-                px-3
-                py-2.5
+                px-4
+                py-3
                 shadow-sm
-                transition
+                transition-all
+                duration-150
                 hover:border-blue-200
                 hover:shadow-md
-                sm:px-3.5
-                sm:py-3
             "
         >
             {/* =====================================================
-                TOP ROW
+                MAIN ROW
             ===================================================== */}
 
-            <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex min-w-0 items-center gap-3">
 
                 {/* Avatar */}
 
@@ -115,101 +108,59 @@ export default function CustomerCard({
 
                 {/* Customer */}
 
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 w-[180px] shrink-0">
 
                     <div className="flex min-w-0 items-center gap-1.5">
 
-                        <h2
-                            className="
-                                min-w-0
-                                truncate
-                                text-sm
-                                font-semibold
-                                text-gray-900
-                            "
-                        >
+                        <p className="truncate text-sm font-semibold text-slate-900">
                             {customer.fullName}
-                        </h2>
+                        </p>
 
                         {activeAgreements > 0 && (
                             <span
                                 className="
-                                    hidden
                                     shrink-0
                                     rounded-full
-                                    bg-green-50
+                                    bg-emerald-50
                                     px-1.5
                                     py-0.5
                                     text-[9px]
-                                    font-medium
-                                    text-green-700
-                                    sm:inline-flex
+                                    font-semibold
+                                    text-emerald-600
                                 "
                             >
                                 Active
                             </span>
                         )}
+
                     </div>
 
-                    <p className="truncate text-[10px] text-gray-400">
+                    <p className="truncate text-[10px] text-slate-400">
                         S/O {customer.fatherName}
                     </p>
+
                 </div>
 
-                {/* Arrow */}
-
-                <ArrowRight
-                    size={16}
-                    className="
-                        shrink-0
-                        text-gray-300
-                        transition
-                        group-hover:translate-x-0.5
-                        group-hover:text-blue-500
-                    "
-                />
-            </div>
-
-            {/* =====================================================
-                DETAILS
-            ===================================================== */}
-
-            <div
-                className="
-                    mt-2.5
-                    grid
-                    grid-cols-2
-                    gap-1.5
-                    sm:grid-cols-4
-                "
-            >
                 {/* Phone */}
 
                 <div
                     className="
-                        flex
+                        hidden
                         min-w-0
                         items-center
                         gap-1.5
-                        rounded-md
-                        bg-gray-50
-                        px-2
-                        py-1.5
+                        text-xs
+                        text-slate-500
+                        lg:flex
+                        lg:w-[125px]
                     "
                 >
                     <Phone
                         size={12}
-                        className="shrink-0 text-gray-400"
+                        className="shrink-0 text-blue-400"
                     />
 
-                    <span
-                        className="
-                            min-w-0
-                            truncate
-                            text-[10px]
-                            text-gray-600
-                        "
-                    >
+                    <span className="truncate">
                         {customer.phone}
                     </span>
                 </div>
@@ -218,18 +169,22 @@ export default function CustomerCard({
 
                 <div
                     className="
-                        min-w-0
+                        hidden
+                        shrink-0
+                        items-center
+                        gap-1.5
                         rounded-md
-                        bg-gray-50
+                        bg-slate-50
                         px-2
-                        py-1.5
+                        py-1
+                        sm:flex
                     "
                 >
-                    <span className="text-[9px] text-gray-400">
+                    <span className="text-[9px] text-slate-400">
                         Agreements
                     </span>
 
-                    <span className="ml-1 text-[11px] font-semibold text-gray-700">
+                    <span className="text-xs font-semibold text-slate-700">
                         {totalAgreements}
                     </span>
                 </div>
@@ -238,18 +193,18 @@ export default function CustomerCard({
 
                 <div
                     className="
+                        hidden
                         min-w-0
-                        rounded-md
-                        bg-gray-50
-                        px-2
-                        py-1.5
+                        items-center
+                        gap-1
+                        md:flex
                     "
                 >
-                    <span className="text-[9px] text-gray-400">
+                    <span className="text-[10px] text-slate-400">
                         Total
                     </span>
 
-                    <span className="ml-1 truncate text-[11px] font-semibold text-gray-700">
+                    <span className="truncate text-xs font-semibold text-blue-600">
                         Rs. {totalAmount.toLocaleString()}
                     </span>
                 </div>
@@ -258,25 +213,121 @@ export default function CustomerCard({
 
                 <div
                     className="
+                        flex
                         min-w-0
-                        rounded-md
-                        bg-blue-50
-                        px-2
-                        py-1.5
+                        items-center
+                        gap-1
                     "
                 >
-                    <span className="text-[9px] text-blue-400">
-                        Remaining
-                    </span>
+                    <Wallet
+                        size={12}
+                        className="shrink-0 text-amber-500"
+                    />
 
-                    <span className="ml-1 truncate text-[11px] font-semibold text-blue-700">
+                    <span className="truncate text-xs font-bold text-amber-600">
                         Rs. {remainingBalance.toLocaleString()}
                     </span>
                 </div>
+
+                {/* Products */}
+
+                <div
+                    className="
+                        hidden
+                        min-w-0
+                        flex-1
+                        items-center
+                        gap-1
+                        lg:flex
+                    "
+                >
+                    {customer.agreements
+                        .slice(0, 2)
+                        .map((agreement) => (
+                            <span
+                                key={agreement.id}
+                                className="
+                                    inline-flex
+                                    shrink-0
+                                    items-center
+                                    gap-1
+                                    rounded-md
+                                    bg-slate-50
+                                    px-1.5
+                                    py-1
+                                    text-[9px]
+                                    font-medium
+                                    text-slate-500
+                                "
+                            >
+                                {agreement.category ===
+                                    "BIKE" ? (
+                                    <Bike size={10} />
+                                ) : (
+                                    <Smartphone size={10} />
+                                )}
+
+                                {agreement.category}
+                            </span>
+                        ))}
+
+                    {customer.agreements.length > 2 && (
+                        <span
+                            className="
+                                shrink-0
+                                rounded-md
+                                bg-slate-100
+                                px-1.5
+                                py-1
+                                text-[9px]
+                                font-medium
+                                text-slate-500
+                            "
+                        >
+                            +{customer.agreements.length - 2}
+                        </span>
+                    )}
+                </div>
+
+                {/* Guarantors */}
+
+                <div
+                    className="
+                        hidden
+                        shrink-0
+                        items-center
+                        gap-1
+                        xl:flex
+                    "
+                >
+                    <Users
+                        size={12}
+                        className="text-purple-400"
+                    />
+
+                    <span className="text-[10px] text-purple-600">
+                        {customer.guarantors.length}
+                    </span>
+                </div>
+
+                {/* Arrow */}
+
+                <ArrowRight
+                    size={16}
+                    className="
+                        ml-auto
+                        shrink-0
+                        text-slate-300
+                        transition
+                        group-hover:translate-x-0.5
+                        group-hover:text-blue-500
+                    "
+                />
+
             </div>
 
             {/* =====================================================
-                BOTTOM ROW
+                MOBILE SECOND LINE
             ===================================================== */}
 
             <div
@@ -285,121 +336,41 @@ export default function CustomerCard({
                     flex
                     min-w-0
                     items-center
-                    justify-between
                     gap-2
                     border-t
-                    border-gray-100
+                    border-slate-100
                     pt-2
+                    sm:hidden
                 "
             >
-                {/* Products */}
 
-                <div className="flex min-w-0 flex-1 items-center gap-1">
-
-                    {visibleProducts.map((agreement) => (
-                        <span
-                            key={agreement.id}
-                            className="
-                                inline-flex
-                                max-w-[110px]
-                                items-center
-                                gap-1
-                                rounded
-                                bg-gray-50
-                                px-1.5
-                                py-1
-                                text-[9px]
-                                font-medium
-                                text-gray-500
-                            "
-                        >
-                            {agreement.category === "BIKE" ? (
-                                <Bike
-                                    size={10}
-                                    className="shrink-0"
-                                />
-                            ) : (
-                                <Smartphone
-                                    size={10}
-                                    className="shrink-0"
-                                />
-                            )}
-
-                            <span className="truncate">
-                                {agreement.category}
-                            </span>
-                        </span>
-                    ))}
-
-                    {extraProducts > 0 && (
-                        <span
-                            className="
-                                shrink-0
-                                rounded
-                                bg-gray-100
-                                px-1.5
-                                py-1
-                                text-[9px]
-                                text-gray-500
-                            "
-                        >
-                            +{extraProducts}
-                        </span>
-                    )}
-                </div>
-
-                {/* Extra information */}
-
-                <div className="hidden items-center gap-2 text-[9px] text-gray-400 sm:flex">
-
-                    <span>
-                        {customer.guarantors.length} guarantor
-                        {customer.guarantors.length !== 1
-                            ? "s"
-                            : ""}
-                    </span>
-
-                    <span className="text-gray-200">•</span>
-
-                    <span>
-                        {customer.cnic}
-                    </span>
-
-                </div>
-            </div>
-
-            {/* =====================================================
-                DESKTOP EXTRA INFORMATION
-            ===================================================== */}
-
-            <div
-                className="
-                    mt-2
-                    hidden
-                    items-center
-                    gap-1.5
-                    border-t
-                    border-gray-100
-                    pt-2
-                    lg:flex
-                "
-            >
-                <MapPin
+                <Phone
                     size={11}
-                    className="shrink-0 text-gray-400"
+                    className="shrink-0 text-blue-400"
                 />
 
-                <span
-                    className="
-                        min-w-0
-                        truncate
-                        text-[9px]
-                        text-gray-400
-                    "
-                >
-                    {customer.address}
+                <span className="truncate text-[10px] text-slate-500">
+                    {customer.phone}
                 </span>
+
+                <span className="text-slate-200">
+                    •
+                </span>
+
+                <span className="shrink-0 text-[10px] text-slate-400">
+                    {totalAgreements} agreements
+                </span>
+
+                <span className="text-slate-200">
+                    •
+                </span>
+
+                <span className="truncate text-[10px] font-medium text-blue-600">
+                    {customer.cnic}
+                </span>
+
             </div>
+
         </Link>
     );
 }

@@ -1,76 +1,154 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import {
     Phone,
     Banknote,
     CalendarDays,
     User,
-    ArrowRight,
     Search,
     X,
+    ChevronLeft,
+    ChevronRight,
+    Loader2,
 } from "lucide-react";
+import { getClientsDueToday } from "@/app/actions/duesToday";
+
+type Agreement = any;
 
 type Props = {
-    callsDueToday: any[];
+    initialData: Agreement[];
+    initialTotal: number;
+    initialPage: number;
+    initialTotalPages: number;
 };
 
+const ITEMS_PER_PAGE = 5;
+
 export default function InstallmentDueTable({
-    callsDueToday,
+    initialData,
+    initialTotal,
+    initialPage,
+    initialTotalPages,
 }: Props) {
-    const [search, setSearch] = useState("");
+    const [customers, setCustomers] =
+        useState<Agreement[]>(initialData);
 
-    /* =====================================================
-       FILTER CUSTOMERS
-    ===================================================== */
+    const [total, setTotal] =
+        useState(initialTotal);
 
-    const filteredCustomers = useMemo(() => {
-        const query = search.trim().toLowerCase();
+    const [currentPage, setCurrentPage] =
+        useState(initialPage);
 
-        if (!query) {
-            return callsDueToday;
+    const [totalPages, setTotalPages] =
+        useState(initialTotalPages);
+
+    const [search, setSearch] =
+        useState("");
+
+    const [searchInput, setSearchInput] =
+        useState("");
+
+    const [isPending, startTransition] =
+        useTransition();
+
+    // ---------------------------------------------------------
+    // Load page from server
+    // ---------------------------------------------------------
+
+    const loadCustomers = (
+        page: number,
+        searchValue: string
+    ) => {
+        startTransition(async () => {
+            const result = await getClientsDueToday(
+                page,
+                ITEMS_PER_PAGE,
+                searchValue
+            );
+
+            setCustomers(result.data);
+            setTotal(result.total);
+            setCurrentPage(result.page);
+            setTotalPages(result.totalPages);
+        });
+    };
+
+    // ---------------------------------------------------------
+    // Search debounce
+    // ---------------------------------------------------------
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setCurrentPage(1);
+
+            loadCustomers(1, searchInput);
+        }, 400);
+
+        return () => clearTimeout(timer);
+    }, [searchInput]);
+
+    // ---------------------------------------------------------
+    // Format date
+    // ---------------------------------------------------------
+
+    const formatDate = (date: Date | string | null) => {
+        if (!date) {
+            return "N/A";
         }
 
-        return callsDueToday.filter((agreement) => {
-            const customerName =
-                agreement.customer?.fullName?.toLowerCase() ?? "";
+        return new Date(date).toLocaleDateString(
+            "en-PK",
+            {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+            }
+        );
+    };
 
-            const customerPhone =
-                agreement.customer?.phone?.toLowerCase() ?? "";
+    // ---------------------------------------------------------
+    // Previous page
+    // ---------------------------------------------------------
 
-            return (
-                customerName.includes(query) ||
-                customerPhone.includes(query)
-            );
-        });
-    }, [callsDueToday, search]);
+    const goToPreviousPage = () => {
+        if (currentPage <= 1 || isPending) {
+            return;
+        }
 
-    /* =====================================================
-       FORMAT DATE
-    ===================================================== */
+        loadCustomers(
+            currentPage - 1,
+            searchInput
+        );
+    };
 
-    const formatDate = (date: Date | null) => {
-        if (!date) return "N/A";
+    // ---------------------------------------------------------
+    // Next page
+    // ---------------------------------------------------------
 
-        return date.toLocaleDateString("en-PK", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-        });
+    const goToNextPage = () => {
+        if (
+            currentPage >= totalPages ||
+            isPending
+        ) {
+            return;
+        }
+
+        loadCustomers(
+            currentPage + 1,
+            searchInput
+        );
     };
 
     return (
         <div className="w-full min-w-0">
 
-            {/* =====================================================
-                SEARCH BAR
-            ===================================================== */}
+            {/* SEARCH */}
 
             <div className="mb-4 w-full">
-                <div className="relative w-full">
 
-                    {/* Search Icon */}
+                <div className="relative w-full">
 
                     <Search
                         className="
@@ -85,13 +163,13 @@ export default function InstallmentDueTable({
                         "
                     />
 
-                    {/* Input */}
-
                     <input
                         type="text"
-                        value={search}
+                        value={searchInput}
                         onChange={(e) =>
-                            setSearch(e.target.value)
+                            setSearchInput(
+                                e.target.value
+                            )
                         }
                         placeholder="Search customer name or phone number..."
                         className="
@@ -114,12 +192,12 @@ export default function InstallmentDueTable({
                         "
                     />
 
-                    {/* Clear Button */}
-
-                    {search && (
+                    {searchInput && (
                         <button
                             type="button"
-                            onClick={() => setSearch("")}
+                            onClick={() =>
+                                setSearchInput("")
+                            }
                             aria-label="Clear search"
                             className="
                                 absolute
@@ -141,58 +219,46 @@ export default function InstallmentDueTable({
                             <X className="h-4 w-4" />
                         </button>
                     )}
+
                 </div>
 
-                {/* Search Result Count */}
+                {/* RESULT COUNT */}
 
                 <div className="mt-2 flex items-center justify-between gap-3 px-1">
 
                     <p className="text-xs text-slate-400">
-                        {search ? (
+
+                        {searchInput ? (
                             <>
-                                Showing{" "}
+                                Found{" "}
                                 <span className="font-semibold text-slate-600">
-                                    {filteredCustomers.length}
-                                </span>{" "}
-                                of{" "}
-                                <span className="font-semibold text-slate-600">
-                                    {callsDueToday.length}
+                                    {total}
                                 </span>{" "}
                                 customers
                             </>
                         ) : (
                             <>
                                 <span className="font-semibold text-slate-600">
-                                    {callsDueToday.length}
+                                    {total}
                                 </span>{" "}
                                 customers due today
                             </>
                         )}
+
                     </p>
 
-                    {search && (
-                        <button
-                            type="button"
-                            onClick={() => setSearch("")}
-                            className="
-                                shrink-0
-                                text-xs
-                                font-medium
-                                text-emerald-600
-                                hover:text-emerald-700
-                            "
-                        >
-                            Clear
-                        </button>
+                    {isPending && (
+                        <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
                     )}
+
                 </div>
+
             </div>
 
-            {/* =====================================================
-                NO SEARCH RESULTS
-            ===================================================== */}
+            {/* NO SEARCH RESULTS */}
 
-            {search && filteredCustomers.length === 0 ? (
+            {customers.length === 0 ? (
+
                 <div
                     className="
                         rounded-xl
@@ -205,6 +271,7 @@ export default function InstallmentDueTable({
                         text-center
                     "
                 >
+
                     <div
                         className="
                             mx-auto
@@ -225,38 +292,20 @@ export default function InstallmentDueTable({
                     </p>
 
                     <p className="mt-1 text-xs text-slate-400">
-                        Try searching with a different name or phone
-                        number.
+                        Try searching with a different name or phone number.
                     </p>
 
-                    <button
-                        type="button"
-                        onClick={() => setSearch("")}
-                        className="
-                            mt-4
-                            rounded-lg
-                            bg-emerald-600
-                            px-4
-                            py-2
-                            text-xs
-                            font-semibold
-                            text-white
-                            transition
-                            hover:bg-emerald-700
-                        "
-                    >
-                        Clear Search
-                    </button>
                 </div>
+
             ) : (
+
                 <>
-                    {/* =================================================
-                        MOBILE VIEW
-                    ================================================= */}
+                    {/* MOBILE */}
 
                     <div className="space-y-3 sm:hidden">
 
-                        {filteredCustomers.map((agreement) => {
+                        {customers.map((agreement) => {
+
                             const latestPayment =
                                 agreement.payments?.[0];
 
@@ -268,9 +317,11 @@ export default function InstallmentDueTable({
                                 agreement.customer?.phone ??
                                 "N/A";
 
-                            const remainingBalance = Number(
-                                latestPayment?.remainingBalance ?? 0
-                            );
+                            const remainingBalance =
+                                Number(
+                                    latestPayment?.remainingBalance ??
+                                    0
+                                );
 
                             const nextDueDate =
                                 latestPayment?.nextDueDate
@@ -295,7 +346,6 @@ export default function InstallmentDueTable({
                                         hover:shadow-md
                                     "
                                 >
-                                    {/* CUSTOMER HEADER */}
 
                                     <div className="flex min-w-0 items-center justify-between gap-3">
 
@@ -332,20 +382,12 @@ export default function InstallmentDueTable({
                                                     </span>
 
                                                 </div>
+
                                             </div>
+
                                         </div>
 
-                                        <ArrowRight
-                                            className="
-                                                h-4
-                                                w-4
-                                                shrink-0
-                                                text-slate-300
-                                            "
-                                        />
                                     </div>
-
-                                    {/* DETAILS */}
 
                                     <div
                                         className="
@@ -359,24 +401,18 @@ export default function InstallmentDueTable({
                                         "
                                     >
 
-                                        {/* Due Date */}
-
                                         <div className="min-w-0">
 
                                             <div className="flex items-center gap-1.5">
 
                                                 <CalendarDays
-                                                    className="
-                                                        h-3.5
-                                                        w-3.5
-                                                        shrink-0
-                                                        text-slate-400
-                                                    "
+                                                    className="h-3.5 w-3.5 shrink-0 text-slate-400"
                                                 />
 
                                                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
                                                     Due Date
                                                 </span>
+
                                             </div>
 
                                             <p className="mt-1 truncate text-xs font-semibold text-slate-700">
@@ -384,36 +420,31 @@ export default function InstallmentDueTable({
                                                     nextDueDate
                                                 )}
                                             </p>
-                                        </div>
 
-                                        {/* Remaining */}
+                                        </div>
 
                                         <div className="min-w-0">
 
                                             <div className="flex items-center gap-1.5">
 
                                                 <Banknote
-                                                    className="
-                                                        h-3.5
-                                                        w-3.5
-                                                        shrink-0
-                                                        text-emerald-500
-                                                    "
+                                                    className="h-3.5 w-3.5 shrink-0 text-emerald-500"
                                                 />
 
                                                 <span className="text-[10px] font-medium uppercase tracking-wide text-slate-400">
                                                     Remaining
                                                 </span>
+
                                             </div>
 
                                             <p className="mt-1 truncate text-sm font-bold text-emerald-600">
                                                 PKR{" "}
                                                 {remainingBalance.toLocaleString()}
                                             </p>
-                                        </div>
-                                    </div>
 
-                                    {/* ACTION */}
+                                        </div>
+
+                                    </div>
 
                                     <Link
                                         href={`/collect-payment/${agreement.id}`}
@@ -437,17 +468,16 @@ export default function InstallmentDueTable({
                                         "
                                     >
                                         <Banknote className="h-4 w-4" />
-
                                         Collect Payment
                                     </Link>
+
                                 </div>
                             );
                         })}
+
                     </div>
 
-                    {/* =================================================
-                        TABLET / DESKTOP VIEW
-                    ================================================= */}
+                    {/* DESKTOP */}
 
                     <div className="hidden overflow-hidden rounded-xl border border-slate-200 sm:block">
 
@@ -458,23 +488,23 @@ export default function InstallmentDueTable({
                                 <thead>
                                     <tr className="border-b border-slate-200 bg-slate-50 text-left">
 
-                                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase text-slate-500 lg:px-5">
+                                        <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500">
                                             Customer
                                         </th>
 
-                                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase text-slate-500 lg:px-5">
+                                        <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500">
                                             Phone
                                         </th>
 
-                                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase text-slate-500 lg:px-5">
+                                        <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500">
                                             Due Date
                                         </th>
 
-                                        <th className="whitespace-nowrap px-4 py-3 text-xs font-semibold uppercase text-slate-500 lg:px-5">
+                                        <th className="px-4 py-3 text-xs font-semibold uppercase text-slate-500">
                                             Remaining
                                         </th>
 
-                                        <th className="whitespace-nowrap px-4 py-3 text-right text-xs font-semibold uppercase text-slate-500 lg:px-5">
+                                        <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-slate-500">
                                             Action
                                         </th>
 
@@ -483,32 +513,28 @@ export default function InstallmentDueTable({
 
                                 <tbody className="divide-y divide-slate-100 bg-white">
 
-                                    {filteredCustomers.map(
+                                    {customers.map(
                                         (agreement) => {
 
                                             const latestPayment =
                                                 agreement.payments?.[0];
 
                                             const customerName =
-                                                agreement.customer
-                                                    ?.fullName ??
+                                                agreement.customer?.fullName ??
                                                 "Unknown Customer";
 
                                             const customerPhone =
-                                                agreement.customer
-                                                    ?.phone ??
+                                                agreement.customer?.phone ??
                                                 "N/A";
 
                                             const remainingBalance =
                                                 Number(
-                                                    latestPayment
-                                                        ?.remainingBalance ??
+                                                    latestPayment?.remainingBalance ??
                                                     0
                                                 );
 
                                             const nextDueDate =
-                                                latestPayment
-                                                    ?.nextDueDate
+                                                latestPayment?.nextDueDate
                                                     ? new Date(
                                                         latestPayment.nextDueDate
                                                     )
@@ -517,15 +543,10 @@ export default function InstallmentDueTable({
                                             return (
                                                 <tr
                                                     key={agreement.id}
-                                                    className="
-                                                        transition-colors
-                                                        hover:bg-slate-50
-                                                    "
+                                                    className="hover:bg-slate-50"
                                                 >
 
-                                                    {/* CUSTOMER */}
-
-                                                    <td className="max-w-[220px] px-4 py-4 lg:px-5">
+                                                    <td className="max-w-[220px] px-4 py-4">
 
                                                         <div className="flex min-w-0 items-center gap-3">
 
@@ -541,30 +562,18 @@ export default function InstallmentDueTable({
                                                                     bg-slate-100
                                                                 "
                                                             >
-                                                                <User
-                                                                    className="
-                                                                        h-4
-                                                                        w-4
-                                                                        text-slate-500
-                                                                    "
-                                                                />
+                                                                <User className="h-4 w-4 text-slate-500" />
                                                             </div>
 
-                                                            <div className="min-w-0">
-
-                                                                <p className="truncate font-semibold text-slate-800">
-                                                                    {customerName}
-                                                                </p>
-
-                                                            </div>
+                                                            <p className="truncate font-semibold text-slate-800">
+                                                                {customerName}
+                                                            </p>
 
                                                         </div>
 
                                                     </td>
 
-                                                    {/* PHONE */}
-
-                                                    <td className="max-w-[180px] px-4 py-4 lg:px-5">
+                                                    <td className="max-w-[180px] px-4 py-4">
 
                                                         <div className="flex min-w-0 items-center gap-2 text-slate-600">
 
@@ -578,9 +587,7 @@ export default function InstallmentDueTable({
 
                                                     </td>
 
-                                                    {/* DUE DATE */}
-
-                                                    <td className="whitespace-nowrap px-4 py-4 lg:px-5">
+                                                    <td className="whitespace-nowrap px-4 py-4">
 
                                                         <div className="flex items-center gap-2 text-slate-600">
 
@@ -596,9 +603,7 @@ export default function InstallmentDueTable({
 
                                                     </td>
 
-                                                    {/* REMAINING */}
-
-                                                    <td className="whitespace-nowrap px-4 py-4 lg:px-5">
+                                                    <td className="whitespace-nowrap px-4 py-4">
 
                                                         <div className="flex items-center gap-2 font-semibold text-emerald-600">
 
@@ -613,9 +618,7 @@ export default function InstallmentDueTable({
 
                                                     </td>
 
-                                                    {/* ACTION */}
-
-                                                    <td className="px-4 py-4 text-right lg:px-5">
+                                                    <td className="px-4 py-4 text-right">
 
                                                         <Link
                                                             href={`/collect-payment/${agreement.id}`}
@@ -632,17 +635,11 @@ export default function InstallmentDueTable({
                                                                 text-xs
                                                                 font-semibold
                                                                 text-white
-                                                                transition-colors
                                                                 hover:bg-emerald-700
                                                             "
                                                         >
-
                                                             <Banknote className="h-4 w-4" />
-
-                                                            <span>
-                                                                Collect Payment
-                                                            </span>
-
+                                                            Collect Payment
                                                         </Link>
 
                                                     </td>
@@ -653,58 +650,101 @@ export default function InstallmentDueTable({
                                     )}
 
                                 </tbody>
+
                             </table>
 
                         </div>
+
                     </div>
+
+                    {/* PAGINATION */}
+
+                    {totalPages > 1 && (
+
+                        <div className="mt-4 flex items-center justify-between gap-3">
+
+                            <button
+                                type="button"
+                                onClick={goToPreviousPage}
+                                disabled={
+                                    currentPage === 1 ||
+                                    isPending
+                                }
+                                className="
+                                    inline-flex
+                                    items-center
+                                    gap-1.5
+                                    rounded-lg
+                                    border
+                                    border-slate-200
+                                    bg-white
+                                    px-3
+                                    py-2
+                                    text-xs
+                                    font-medium
+                                    text-slate-600
+                                    hover:bg-slate-50
+                                    disabled:cursor-not-allowed
+                                    disabled:opacity-40
+                                "
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                                Previous
+                            </button>
+
+                            <p className="text-xs text-slate-500">
+
+                                Page{" "}
+
+                                <span className="font-semibold text-slate-700">
+                                    {currentPage}
+                                </span>
+
+                                {" "}of{" "}
+
+                                <span className="font-semibold text-slate-700">
+                                    {totalPages}
+                                </span>
+
+                            </p>
+
+                            <button
+                                type="button"
+                                onClick={goToNextPage}
+                                disabled={
+                                    currentPage === totalPages ||
+                                    isPending
+                                }
+                                className="
+                                    inline-flex
+                                    items-center
+                                    gap-1.5
+                                    rounded-lg
+                                    border
+                                    border-slate-200
+                                    bg-white
+                                    px-3
+                                    py-2
+                                    text-xs
+                                    font-medium
+                                    text-slate-600
+                                    hover:bg-slate-50
+                                    disabled:cursor-not-allowed
+                                    disabled:opacity-40
+                                "
+                            >
+                                Next
+                                <ChevronRight className="h-4 w-4" />
+                            </button>
+
+                        </div>
+
+                    )}
+
                 </>
+
             )}
 
-            {/* =====================================================
-                NO DATA AT ALL
-            ===================================================== */}
-
-            {!search && callsDueToday.length === 0 && (
-                <div
-                    className="
-                        mt-3
-                        rounded-xl
-                        border
-                        border-dashed
-                        border-slate-300
-                        bg-white
-                        px-4
-                        py-8
-                        text-center
-                    "
-                >
-
-                    <div
-                        className="
-                            mx-auto
-                            flex
-                            h-10
-                            w-10
-                            items-center
-                            justify-center
-                            rounded-full
-                            bg-slate-100
-                        "
-                    >
-                        <CalendarDays className="h-5 w-5 text-slate-400" />
-                    </div>
-
-                    <p className="mt-3 text-sm font-semibold text-slate-700">
-                        No payments due today
-                    </p>
-
-                    <p className="mt-1 text-xs text-slate-400">
-                        Customers with installments due today will
-                        appear here.
-                    </p>
-
-                </div>
-            )}
         </div>
     );
 }

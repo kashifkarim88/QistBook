@@ -11,44 +11,64 @@ import {
 export const revalidate = 0;
 
 export default async function DashboardPage() {
-    // 1. Fetch active agreements count
-    const activeAgreementsCount = await prisma.installmentAgreement.count({
-        where: {
-            status: "ACTIVE",
-        },
-    });
+    // ---------------------------------------------------------
+    // Active agreements count
+    // ---------------------------------------------------------
 
-    // 2. Fetch installments that are due today / overdue
-    const callsDueToday = await getClientsDueToday();
-
-    // 3. Fetch active agreements with their latest payment
-    const activeAgreements = await prisma.installmentAgreement.findMany({
-        where: {
-            status: "ACTIVE",
-        },
-        include: {
-            payments: {
-                orderBy: {
-                    createdAt: "desc",
-                },
-                take: 1,
+    const activeAgreementsCount =
+        await prisma.installmentAgreement.count({
+            where: {
+                status: "ACTIVE",
             },
-        },
-    });
+        });
 
-    // 4. Calculate total outstanding balance
-    const totalOutstanding = activeAgreements.reduce((acc, agr) => {
-        const latestPayment = agr.payments[0];
+    // ---------------------------------------------------------
+    // First page of due customers
+    // ---------------------------------------------------------
 
-        return acc + Number(latestPayment?.remainingBalance || 0);
-    }, 0);
+    const callsDueToday = await getClientsDueToday(1, 5, "");
+
+    // ---------------------------------------------------------
+    // Active agreements for outstanding balance
+    // ---------------------------------------------------------
+
+    const activeAgreements =
+        await prisma.installmentAgreement.findMany({
+            where: {
+                status: "ACTIVE",
+            },
+
+            include: {
+                payments: {
+                    orderBy: {
+                        createdAt: "desc",
+                    },
+                    take: 1,
+                },
+            },
+        });
+
+    // ---------------------------------------------------------
+    // Total outstanding
+    // ---------------------------------------------------------
+
+    const totalOutstanding =
+        activeAgreements.reduce((acc, agr) => {
+            const latestPayment = agr.payments[0];
+
+            return (
+                acc +
+                Number(
+                    latestPayment?.remainingBalance ?? 0
+                )
+            );
+        }, 0);
 
     return (
         <div className="space-y-8 max-w-7xl mx-auto">
 
-            {/* =====================================================
-                HEADER
-            ====================================================== */}
+            {/* HEADER */}
+
             <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
                     Dashboard Overview
@@ -60,13 +80,12 @@ export default async function DashboardPage() {
                 </p>
             </div>
 
+            {/* SUMMARY STATS */}
 
-            {/* =====================================================
-                SUMMARY STATS
-            ====================================================== */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
 
                 {/* Active Contracts */}
+
                 <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
                     <div>
                         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -83,8 +102,8 @@ export default async function DashboardPage() {
                     </div>
                 </div>
 
-
                 {/* Calls Due Today */}
+
                 <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
                     <div>
                         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -92,7 +111,7 @@ export default async function DashboardPage() {
                         </p>
 
                         <p className="text-2xl font-bold text-amber-600 mt-1">
-                            {callsDueToday.length}
+                            {callsDueToday.total}
                         </p>
                     </div>
 
@@ -101,8 +120,8 @@ export default async function DashboardPage() {
                     </div>
                 </div>
 
-
                 {/* Total Outstanding */}
+
                 <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center justify-between shadow-sm hover:shadow-md transition-shadow">
                     <div>
                         <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
@@ -110,7 +129,8 @@ export default async function DashboardPage() {
                         </p>
 
                         <p className="text-2xl font-bold text-emerald-600 mt-1">
-                            PKR {totalOutstanding.toLocaleString()}
+                            PKR{" "}
+                            {totalOutstanding.toLocaleString()}
                         </p>
                     </div>
 
@@ -121,34 +141,31 @@ export default async function DashboardPage() {
 
             </div>
 
+            {/* INSTALLMENT CALLING QUEUE */}
 
-            {/* =====================================================
-                INSTALLMENT CALLING QUEUE
-            ====================================================== */}
             <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
 
-                {/* Queue Header */}
                 <div className="flex items-center justify-between mb-6">
+
                     <div>
                         <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+
                             <PhoneCall className="w-4 h-4 text-amber-500" />
 
                             Installment Calling Queue (
-                            {callsDueToday.length}
+                            {callsDueToday.total}
                             )
+
                         </h2>
 
                         <p className="text-xs text-slate-500 mt-0.5">
                             Clients whose monthly installments are due today or overdue.
                         </p>
                     </div>
+
                 </div>
 
-
-                {/* =================================================
-                    NO PAYMENTS DUE
-                ================================================== */}
-                {callsDueToday.length === 0 ? (
+                {callsDueToday.total === 0 ? (
 
                     <div className="p-12 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
 
@@ -166,16 +183,17 @@ export default async function DashboardPage() {
 
                 ) : (
 
-                    /* =================================================
-                       INSTALLMENT TABLE
-                    ================================================== */
                     <InstallmentDueTable
-                        callsDueToday={callsDueToday}
+                        initialData={callsDueToday.data}
+                        initialTotal={callsDueToday.total}
+                        initialPage={callsDueToday.page}
+                        initialTotalPages={callsDueToday.totalPages}
                     />
 
                 )}
 
             </div>
+
         </div>
     );
 }
