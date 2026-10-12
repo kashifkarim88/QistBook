@@ -14,6 +14,7 @@ import {
     Clock,
     AlertCircle,
     Wallet,
+    MapPin,
 } from "lucide-react";
 
 type PageProps = {
@@ -118,7 +119,7 @@ export default async function AgreementDetailsPage({
         latestPayment?.paymentDate ?? null;
 
     return (
-        <main className="min-h-screen w-full overflow-x-hidden bg-gray-50 px-3 py-4 sm:px-5 sm:py-6 lg:px-6">
+        <main className="min-h-screen w-full overflow-x-hidden bg-gray-50 px-0 py-2 sm:px-2 sm:py-4 lg:px-3">
             <div className="mx-auto w-full max-w-7xl">
 
                 {/* =====================================================
@@ -787,11 +788,11 @@ export default async function AgreementDetailsPage({
                                 </span>
                             </div>
 
-                            <p className="mt-2 truncate text-sm font-semibold text-gray-900">
+                            <p className="mt-2 break-words text-sm font-semibold text-gray-900">
                                 {agreement.customer.fullName}
                             </p>
 
-                            <p className="truncate text-xs text-gray-500">
+                            <p className="break-words text-xs text-gray-500">
                                 S/O {agreement.customer.fatherName}
                             </p>
                         </div>
@@ -811,7 +812,7 @@ export default async function AgreementDetailsPage({
                                 </span>
                             </div>
 
-                            <p className="mt-2 truncate text-sm font-semibold text-gray-900">
+                            <p className="mt-2 break-words text-sm font-semibold text-gray-900">
                                 {agreement.customer.phone}
                             </p>
                         </div>
@@ -833,6 +834,26 @@ export default async function AgreementDetailsPage({
 
                             <p className="mt-2 break-all text-sm font-semibold text-gray-900">
                                 {agreement.customer.cnic}
+                            </p>
+                        </div>
+
+                        {/* Address (full width, wraps fully) */}
+
+                        <div className="min-w-0 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:col-span-3">
+
+                            <div className="flex items-center gap-2">
+                                <MapPin
+                                    size={16}
+                                    className="shrink-0 text-gray-400"
+                                />
+
+                                <span className="text-[10px] uppercase text-gray-400">
+                                    Address
+                                </span>
+                            </div>
+
+                            <p className="mt-2 whitespace-normal break-words text-sm font-semibold leading-relaxed text-gray-900">
+                                {agreement.customer.address || "—"}
                             </p>
                         </div>
                     </div>

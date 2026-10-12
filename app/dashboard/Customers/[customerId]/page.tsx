@@ -124,7 +124,7 @@ export default async function CustomerDetailsPage({
             : 0;
 
     return (
-        <main className="min-h-screen overflow-x-hidden bg-gray-50 px-3 py-4 sm:px-5 sm:py-6 lg:px-6">
+        <main className="min-h-screen w-full overflow-x-hidden bg-gray-50 px-0 py-2 sm:px-2 sm:py-4 lg:px-3">
             <div className="mx-auto w-full max-w-7xl">
 
                 {/* =====================================================
@@ -217,7 +217,7 @@ export default async function CustomerDetailsPage({
                                         <h1
                                             className="
                                                 max-w-full
-                                                truncate
+                                                break-words
                                                 text-lg
                                                 font-bold
                                                 text-gray-900
@@ -247,7 +247,7 @@ export default async function CustomerDetailsPage({
                                         )}
                                     </div>
 
-                                    <p className="mt-0.5 truncate text-xs text-gray-500 sm:text-sm">
+                                    <p className="mt-0.5 break-words text-xs text-gray-500 sm:text-sm">
                                         S/O {customer.fatherName}
                                     </p>
                                 </div>
@@ -310,7 +310,7 @@ export default async function CustomerDetailsPage({
                                 border-gray-100
                                 pt-4
                                 sm:grid-cols-2
-                                lg:grid-cols-4
+                                lg:grid-cols-3
                             "
                         >
 
@@ -329,7 +329,7 @@ export default async function CustomerDetailsPage({
                                         Phone
                                     </p>
 
-                                    <p className="truncate text-sm font-medium text-gray-700">
+                                    <p className="break-words text-sm font-medium text-gray-700">
                                         {customer.phone}
                                     </p>
                                 </div>
@@ -350,29 +350,8 @@ export default async function CustomerDetailsPage({
                                         CNIC
                                     </p>
 
-                                    <p className="truncate text-sm font-medium text-gray-700">
+                                    <p className="break-all text-sm font-medium text-gray-700">
                                         {customer.cnic}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Address */}
-
-                            <div className="flex min-w-0 items-center gap-3">
-                                <div className="shrink-0 rounded-lg bg-gray-50 p-2">
-                                    <MapPin
-                                        size={15}
-                                        className="text-gray-500"
-                                    />
-                                </div>
-
-                                <div className="min-w-0">
-                                    <p className="text-[10px] uppercase text-gray-400">
-                                        Address
-                                    </p>
-
-                                    <p className="truncate text-sm font-medium text-gray-700">
-                                        {customer.address}
                                     </p>
                                 </div>
                             </div>
@@ -394,6 +373,27 @@ export default async function CustomerDetailsPage({
 
                                     <p className="text-sm font-medium text-gray-700">
                                         {customer.guarantors.length}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Address (full width, wraps fully) */}
+
+                            <div className="flex min-w-0 items-start gap-3 sm:col-span-2 lg:col-span-3">
+                                <div className="shrink-0 rounded-lg bg-gray-50 p-2">
+                                    <MapPin
+                                        size={15}
+                                        className="text-gray-500"
+                                    />
+                                </div>
+
+                                <div className="min-w-0">
+                                    <p className="text-[10px] uppercase text-gray-400">
+                                        Address
+                                    </p>
+
+                                    <p className="whitespace-normal break-words text-sm font-medium leading-relaxed text-gray-700">
+                                        {customer.address || "—"}
                                     </p>
                                 </div>
                             </div>
@@ -606,11 +606,11 @@ export default async function CustomerDetailsPage({
                                         </div>
 
                                         <div className="min-w-0">
-                                            <p className="truncate text-sm font-semibold text-gray-900">
+                                            <p className="break-words text-sm font-semibold text-gray-900">
                                                 {guarantor.fullName}
                                             </p>
 
-                                            <p className="truncate text-xs text-gray-500">
+                                            <p className="break-words text-xs text-gray-500">
                                                 {guarantor.phone}
                                             </p>
                                         </div>
@@ -621,7 +621,7 @@ export default async function CustomerDetailsPage({
                                             CNIC
                                         </p>
 
-                                        <p className="truncate text-xs text-gray-600">
+                                        <p className="break-all text-xs text-gray-600">
                                             {guarantor.cnic}
                                         </p>
                                     </div>
@@ -635,7 +635,7 @@ export default async function CustomerDetailsPage({
                     PURCHASED ITEMS
                 ===================================================== */}
 
-                <section className="mt-6">
+                <section className="mt-6 pb-6">
 
                     <div className="mb-3 flex items-end justify-between gap-3">
                         <div className="min-w-0">
@@ -765,7 +765,7 @@ export default async function CustomerDetailsPage({
                                                 <div className="min-w-0 flex-1">
                                                     <div className="flex min-w-0 items-center gap-2">
 
-                                                        <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-gray-900">
+                                                        <h3 className="min-w-0 flex-1 break-words text-sm font-semibold text-gray-900">
                                                             {productName.trim() ||
                                                                 "Unnamed Item"}
                                                         </h3>
@@ -822,12 +822,11 @@ export default async function CustomerDetailsPage({
                                                 className="
                                                     mt-3
                                                     grid
-                                                    grid-cols-1
+                                                    grid-cols-3
                                                     gap-2
                                                     border-t
                                                     border-gray-100
                                                     pt-3
-                                                    xs:grid-cols-3
                                                 "
                                             >
 
@@ -836,7 +835,7 @@ export default async function CustomerDetailsPage({
                                                         Agreement
                                                     </p>
 
-                                                    <p className="mt-0.5 truncate text-xs font-semibold text-gray-800">
+                                                    <p className="mt-0.5 break-words text-xs font-semibold text-gray-800">
                                                         {formatAmount(
                                                             agreement.totalAmount
                                                         )}
@@ -848,7 +847,7 @@ export default async function CustomerDetailsPage({
                                                         Paid
                                                     </p>
 
-                                                    <p className="mt-0.5 truncate text-xs font-semibold text-green-600">
+                                                    <p className="mt-0.5 break-words text-xs font-semibold text-green-600">
                                                         {formatAmount(paid)}
                                                     </p>
                                                 </div>
@@ -858,7 +857,7 @@ export default async function CustomerDetailsPage({
                                                         Remaining
                                                     </p>
 
-                                                    <p className="mt-0.5 truncate text-xs font-semibold text-blue-600">
+                                                    <p className="mt-0.5 break-words text-xs font-semibold text-blue-600">
                                                         {formatAmount(
                                                             remaining
                                                         )}
