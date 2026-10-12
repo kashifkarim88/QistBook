@@ -154,7 +154,7 @@ export default function CustomersPage() {
     };
 
     return (
-        <main className="min-h-screen bg-gray-50 p-6">
+        <main className="min-h-screen bg-gray-50 p-0 sm:p-2">
 
             <div className="mx-auto max-w-7xl">
 
@@ -162,7 +162,7 @@ export default function CustomersPage() {
                     HEADER
                 ================================================= */}
 
-                <div className="mb-8 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                <div className="mb-6 flex flex-col gap-5 sm:mb-8 md:flex-row md:items-center md:justify-between">
 
                     <div className="flex items-center gap-3">
 
@@ -171,6 +171,7 @@ export default function CustomersPage() {
                                 flex
                                 h-11
                                 w-11
+                                shrink-0
                                 items-center
                                 justify-center
                                 rounded-xl
@@ -201,7 +202,7 @@ export default function CustomersPage() {
                     SEARCH
                 ================================================= */}
 
-                <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="mb-5 rounded-2xl border border-gray-200 bg-white p-3 shadow-sm sm:mb-6 sm:p-5">
 
                     <div className="mb-3">
 
@@ -291,6 +292,7 @@ export default function CustomersPage() {
                                 border-dashed
                                 border-gray-300
                                 bg-white
+                                px-4
                                 text-center
                             "
                         >
@@ -322,7 +324,7 @@ export default function CustomersPage() {
                 {!loading &&
                     customers.length > 0 && (
 
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-3 sm:gap-4">
 
                             {customers.map(
                                 (customer) => (

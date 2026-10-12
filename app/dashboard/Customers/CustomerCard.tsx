@@ -73,13 +73,14 @@ export default function CustomerCard({
                 border
                 border-slate-200
                 bg-white
-                px-4
+                px-3
                 py-3
                 shadow-sm
                 transition-all
                 duration-150
                 hover:border-blue-200
                 hover:shadow-md
+                sm:px-4
             "
         >
             {/* =====================================================
@@ -108,7 +109,7 @@ export default function CustomerCard({
 
                 {/* Customer */}
 
-                <div className="min-w-0 w-[180px] shrink-0">
+                <div className="min-w-0 flex-1 sm:w-[180px] sm:flex-none sm:shrink-0">
 
                     <div className="flex min-w-0 items-center gap-1.5">
 
@@ -214,7 +215,7 @@ export default function CustomerCard({
                 <div
                     className="
                         flex
-                        min-w-0
+                        shrink-0
                         items-center
                         gap-1
                     "
@@ -224,7 +225,7 @@ export default function CustomerCard({
                         className="shrink-0 text-amber-500"
                     />
 
-                    <span className="truncate text-xs font-bold text-amber-600">
+                    <span className="whitespace-nowrap text-xs font-bold text-amber-600">
                         Rs. {remainingBalance.toLocaleString()}
                     </span>
                 </div>
@@ -315,12 +316,12 @@ export default function CustomerCard({
                 <ArrowRight
                     size={16}
                     className="
-                        ml-auto
                         shrink-0
                         text-slate-300
                         transition
                         group-hover:translate-x-0.5
                         group-hover:text-blue-500
+                        sm:ml-auto
                     "
                 />
 
@@ -349,11 +350,11 @@ export default function CustomerCard({
                     className="shrink-0 text-blue-400"
                 />
 
-                <span className="truncate text-[10px] text-slate-500">
+                <span className="shrink-0 text-[10px] text-slate-500">
                     {customer.phone}
                 </span>
 
-                <span className="text-slate-200">
+                <span className="shrink-0 text-slate-200">
                     •
                 </span>
 
@@ -361,11 +362,11 @@ export default function CustomerCard({
                     {totalAgreements} agreements
                 </span>
 
-                <span className="text-slate-200">
+                <span className="shrink-0 text-slate-200">
                     •
                 </span>
 
-                <span className="truncate text-[10px] font-medium text-blue-600">
+                <span className="min-w-0 truncate text-[10px] font-medium text-blue-600">
                     {customer.cnic}
                 </span>
 
